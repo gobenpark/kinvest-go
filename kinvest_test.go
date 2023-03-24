@@ -38,7 +38,7 @@ func Test_AccessToken(t *testing.T) {
 
 func Test_RevokeToken(t *testing.T) {
 	cli := MockClient(t)
-	err := cli.RevokeToken(context.TODO(), "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6IjdlNDU1ZWJlLTQ2YzgtNDM3Yi1hM2UwLTQ4NmQzZDgzMzhhMCIsImlzcyI6InVub2d3IiwiZXhwIjoxNjc5NzA4NjYzLCJpYXQiOjE2Nzk2MjIyNjMsImp0aSI6IlBTMzlVWDlvaXZRRWFUUHplWG9ybDEybTZTWTNBb3REUm02NSJ9.3bRacS9wEo8W_e61Jj12w61DFKvCXCJu8nnZWVBAd_tk8zXKuB1MBiXuSQPwsg7Jh-HXeh-CGAeK-M7EADl-5A")
+	err := cli.RevokeToken(context.TODO(), "")
 	assert.NoError(t, err)
 }
 
@@ -56,7 +56,59 @@ func Test_BodyParse(t *testing.T) {
 	assert.Equal(t, data[0], "0")
 	assert.Equal(t, data[1], "H0STCNT0")
 	assert.Equal(t, data[2], "001")
-	for _, i := range strings.Split(data[3], "^") {
-		fmt.Println(i)
+	datas := strings.Split(data[3], "^")
+	res := ResponseBody{
+		Encrypted:                  data[0],
+		TRID:                       data[1],
+		DataCounts:                 data[2],
+		Code:                       datas[0],
+		ContractHour:               datas[1],
+		Price:                      datas[2],
+		CompareSign:                datas[3],
+		CompareDay:                 datas[4],
+		CompareRate:                datas[5],
+		WeightAveragePrice:         datas[6],
+		Open:                       datas[7],
+		High:                       datas[8],
+		Low:                        datas[9],
+		AskPrice:                   datas[10],
+		BidPrice:                   datas[11],
+		ContractVolume:             datas[12],
+		AccumulateVolume:           datas[13],
+		AccumulateTransactionMoney: datas[14],
+		AskCount:                   datas[15],
+		BidCount:                   datas[16],
+		PureBidCount:               datas[17],
+		VolumePower:                datas[18],
+		TotalAskCounts:             datas[19],
+		TotalBidCounts:             datas[20],
+		ContractDivide:             datas[21],
+		BidRate:                    datas[22],
+		PredayVolumeCompareRate:    datas[23],
+		OpenningTime:               datas[24],
+		OpenCompareSign:            datas[25],
+		OpenCompare:                datas[26],
+		HighTime:                   datas[27],
+		HighCompareSign:            datas[28],
+		HighCompare:                datas[29],
+		LowTime:                    datas[30],
+		LowCompareSign:             datas[31],
+		LowCompare:                 datas[32],
+		BusinessDate:               datas[33],
+		NewMarketOpCode:            datas[34],
+		TransactionSuspension:      datas[35],
+		RemainAsk:                  datas[36],
+		RemainBid:                  datas[37],
+		TotalRemainAsk:             datas[38],
+		TotalRemainBid:             datas[39],
+		VolumeRotateRate:           datas[40],
+		PreDayTotalVolume:          datas[41],
+		PreDayTotalVolumeRate:      datas[42],
+		HourClockCode:              datas[43],
+		MarketTermCode:             datas[44],
+		VIStandardPrice:            datas[45],
 	}
+	fmt.Println(res.PreDayTotalVolumeRate)
+	fmt.Println(res.PreDayTotalVolume)
+
 }
