@@ -1,6 +1,6 @@
 <p align="center">
 <h1 align="center">kinvest-go</h1>
-<p align="center">korea investment client library for Go (inspired by Ruby rest-client)</p>
+<p align="center">korea investment client library for Go (inspired by <a href="https://github.com/koreainvestment/open-trading-api">open-trading-api)</p>
 </p>
 
 
