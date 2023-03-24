@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 
@@ -14,12 +15,13 @@ type Kinvest struct {
 	appKey    string
 	secretKey string
 	rest      *resty.Client
+	imitation bool
 }
 
-func NewKinvest(appKey, secretKey string) *Kinvest {
+func NewKinvest(imitation bool, appKey, secretKey string) *Kinvest {
 	rest := resty.New()
 	rest.SetBaseURL("https://openapi.koreainvestment.com:9443")
-	return &Kinvest{appKey: appKey, secretKey: secretKey, rest: rest}
+	return &Kinvest{appKey: appKey, secretKey: secretKey, rest: rest, imitation: imitation}
 }
 
 func (k *Kinvest) ApprovalKey(ctx context.Context) (string, error) {
@@ -123,4 +125,174 @@ func (k *Kinvest) RealtimeContract(ctx context.Context) error {
 		}
 	})
 
+}
+
+// 주식현재가 시세
+func (k *Kinvest) CurrentPrice(ctx context.Context, token, ftype, code string) (*CurrentPrice, error) {
+
+	res, err := k.rest.R().SetContext(ctx).SetHeaders(map[string]string{
+		"content-type":  "application/json; charset=utf-8",
+		"authorization": "Bearer " + token,
+		"appkey":        k.appKey,
+		"appsecret":     k.secretKey,
+		"tr_id":         "FHKST01010100",
+		"custtype":      "P",
+	}).SetQueryParam("FID_COND_MRKT_DIV_CODE", ftype).
+		SetQueryParam("FID_INPUT_ISCD", code).
+		Get("/uapi/domestic-stock/v1/quotations/inquire-price")
+	if err != nil {
+		return nil, err
+	}
+	var d CurrentPrice
+	if err := json.Unmarshal(res.Body(), &d); err != nil {
+		return nil, err
+	}
+	return &d, nil
+}
+
+// 주식현재가 체결
+func (k *Kinvest) CurrentConclusion(ctx context.Context, token, ftype, code string) (*CurrentConclusion, error) {
+	res, err := k.rest.R().SetContext(ctx).SetHeaders(map[string]string{
+		"content-type":  "application/json; charset=utf-8",
+		"authorization": "Bearer " + token,
+		"appkey":        k.appKey,
+		"appsecret":     k.secretKey,
+		"tr_id":         "FHKST01010300",
+		"custtype":      "P",
+	}).SetQueryParam("FID_COND_MRKT_DIV_CODE", ftype).
+		SetQueryParam("FID_INPUT_ISCD", code).
+		Get("/uapi/domestic-stock/v1/quotations/inquire-ccnl")
+	if err != nil {
+		return nil, err
+	}
+	var d CurrentConclusion
+	if err := json.Unmarshal(res.Body(), &d); err != nil {
+		return nil, err
+	}
+
+	return &d, nil
+}
+
+// 현재가 일자별 일/주/월별 주가를 확인할 수 있으며 최근 30일(주,별)로 제한되어있습니다.
+func (k *Kinvest) DailyPrice(ctx context.Context, token, ftype, code string) (*DailyPrice, error) {
+	res, err := k.rest.R().SetContext(ctx).SetHeaders(map[string]string{
+		"content-type":  "application/json; charset=utf-8",
+		"authorization": "Bearer " + token,
+		"appkey":        k.appKey,
+		"appsecret":     k.secretKey,
+		"tr_id":         "FHKST01010400",
+		"custtype":      "P",
+	}).SetQueryParam("FID_COND_MRKT_DIV_CODE", ftype).
+		SetQueryParam("FID_INPUT_ISCD", code).
+		SetQueryParam("FID_PERIOD_DIV_CODE", "D").
+		SetQueryParam("FID_ORG_ADJ_PRC", "0").
+		Get("/uapi/domestic-stock/v1/quotations/inquire-daily-price")
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(res.String())
+	var d DailyPrice
+
+	if err := json.Unmarshal(res.Body(), &d); err != nil {
+		return nil, err
+	}
+
+	return &d, nil
+}
+
+// 주식현재가 호가 예상체결 API입니다. 매수 매도 호가를 확인하실 수 있습니다. 실시간 데이터를 원하신다면 웹소켓 API를 활용하세요.
+func (k *Kinvest) ExpectAskPrice(ctx context.Context, token, ftype, code string) (*ExpectPrice, error) {
+	res, err := k.rest.R().SetContext(ctx).SetHeaders(map[string]string{
+		"content-type":  "application/json; charset=utf-8",
+		"authorization": "Bearer " + token,
+		"appkey":        k.appKey,
+		"appsecret":     k.secretKey,
+		"tr_id":         "FHKST01010200",
+		"custtype":      "P",
+	}).SetQueryParam("FID_COND_MRKT_DIV_CODE", ftype).
+		SetQueryParam("FID_INPUT_ISCD", code).
+		Get("/uapi/domestic-stock/v1/quotations/inquire-asking-price-exp-ccn")
+	if err != nil {
+		return nil, err
+	}
+	var d ExpectPrice
+	if err := json.Unmarshal(res.Body(), &d); err != nil {
+		return nil, err
+	}
+
+	return &d, nil
+}
+
+// 주식현재가 투자자 API입니다. 개인, 외국인, 기관 등 투자 정보를 확인할 수 있습니다.
+//
+// [유의사항]
+// - 외국인은 외국인(외국인투자등록 고유번호가 있는 경우)+기타 외국인을 지칭합니다.
+// - 당일 데이터는 장 종료 후 제공됩니다.
+func (k *Kinvest) Investor(ctx context.Context, token, ftype, code string) (*Investor, error) {
+	res, err := k.rest.R().SetContext(ctx).SetHeaders(map[string]string{
+		"content-type":  "application/json; charset=utf-8",
+		"authorization": "Bearer " + token,
+		"appkey":        k.appKey,
+		"appsecret":     k.secretKey,
+		"tr_id":         "FHKST01010900",
+		"custtype":      "P",
+	}).SetQueryParam("FID_COND_MRKT_DIV_CODE", ftype).
+		SetQueryParam("FID_INPUT_ISCD", code).
+		Get("/uapi/domestic-stock/v1/quotations/inquire-investor")
+	if err != nil {
+		return nil, err
+	}
+	var d Investor
+	if err := json.Unmarshal(res.Body(), &d); err != nil {
+		return nil, err
+	}
+
+	return &d, nil
+}
+
+// 주식 현재가 회원사 API입니다. 회원사의 투자 정보를 확인할 수 있습니다.
+func (k *Kinvest) Member(ctx context.Context, token, ftype, code string) (*Member, error) {
+	res, err := k.rest.R().SetContext(ctx).SetHeaders(map[string]string{
+		"content-type":  "application/json; charset=utf-8",
+		"authorization": "Bearer " + token,
+		"appkey":        k.appKey,
+		"appsecret":     k.secretKey,
+		"tr_id":         "FHKST01010600",
+		"custtype":      "P",
+	}).SetQueryParam("FID_COND_MRKT_DIV_CODE", ftype).
+		SetQueryParam("FID_INPUT_ISCD", code).
+		Get("/uapi/domestic-stock/v1/quotations/inquire-member")
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(res.String())
+	var d Member
+	if err := json.Unmarshal(res.Body(), &d); err != nil {
+		return nil, err
+	}
+
+	return &d, nil
+}
+
+func (k *Kinvest) CurrentELW(ctx context.Context, token, ftype, code string) (*ELW, error) {
+	res, err := k.rest.R().SetContext(ctx).SetHeaders(map[string]string{
+		"content-type":  "application/json; charset=utf-8",
+		"authorization": "Bearer " + token,
+		"appkey":        k.appKey,
+		"appsecret":     k.secretKey,
+		"tr_id":         "FHKEW15010000",
+		"custtype":      "P",
+	}).SetQueryParam("FID_COND_MRKT_DIV_CODE", ftype).
+		SetQueryParam("FID_INPUT_ISCD", code).
+		Get("/uapi/domestic-stock/v1/quotations/inquire-elw-price")
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(res.String())
+	var d ELW
+	if err := json.Unmarshal(res.Body(), &d); err != nil {
+		return nil, err
+	}
+
+	return &d, nil
 }
