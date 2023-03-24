@@ -7,8 +7,7 @@
 ## Installation
 
 ```bash
-# Go Modules
-require github.com/gobenpark/kinvest-go
+go get github.com/gobenpark/kinvest-go
 ```
 
 
