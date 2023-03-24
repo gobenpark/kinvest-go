@@ -101,21 +101,21 @@ type ResponseBody struct {
 	// 시가 시간
 	OpenningTime string
 	// 시가 대비 구분
-	OpenComapreSign string
+	OpenCompareSign string
 	// 시가대비
-	OpenComapre string
+	OpenCompare string
 	// 최고가 시간
 	HighTime string
 	// 고가대비 구분
-	HighVolumePerSign string
+	HighCompareSign string
 	// 고가대비
 	HighCompare string
 	// 최저가 시간
 	LowTime string
 	// 저가대비구분
-	LowVolumePerSign string
+	LowCompareSign string
 	// 저가대비
-	LowComapre string
+	LowCompare string
 	// 영업 일자
 	BusinessDate string
 	// 신 장운영 구분 코드
@@ -174,7 +174,7 @@ func (r *ResponseBody) GetCompareSign() Sign {
 	return ConvertSign(r.CompareSign)
 }
 
-func (r *ResponseBody) ComapreDay() int {
+func (r *ResponseBody) GetCompareDay() int {
 	d, _ := strconv.Atoi(r.CompareDay)
 	return d
 }
@@ -226,5 +226,154 @@ func (r *ResponseBody) GetAccumulateVolume() int {
 
 func (r *ResponseBody) GetAccumulateTransactionMoney() int64 {
 	i, _ := strconv.ParseInt(r.AccumulateTransactionMoney, 10, 64)
+	return i
+}
+
+func (r *ResponseBody) GetAskCount() int {
+	i, _ := strconv.Atoi(r.AskCount)
+	return i
+}
+
+func (r *ResponseBody) GetBidCount() int {
+	i, _ := strconv.Atoi(r.BidCount)
+	return i
+}
+
+func (r *ResponseBody) GetPureBidCount() int {
+	i, _ := strconv.Atoi(r.PureBidCount)
+	return i
+}
+
+func (r *ResponseBody) GetVolumePower() float64 {
+	f, _ := strconv.ParseFloat(r.VolumePower, 32)
+	return f
+}
+
+func (r *ResponseBody) GetTotalAskCounts() int {
+	i, _ := strconv.Atoi(r.TotalAskCounts)
+	return i
+}
+
+func (r *ResponseBody) GetTotalBidCounts() int {
+	i, _ := strconv.Atoi(r.TotalBidCounts)
+	return i
+}
+
+func (r *ResponseBody) GetContractDivide() string {
+	return r.ContractDivide
+}
+
+func (r *ResponseBody) GetBidRate() float64 {
+	f, _ := strconv.ParseFloat(r.BidRate, 32)
+	return f
+}
+
+func (r *ResponseBody) GetPredayVolumeCompareRate() float64 {
+	f, _ := strconv.ParseFloat(r.PredayVolumeCompareRate, 32)
+	return f
+}
+
+func (r *ResponseBody) GetOpenningTime() time.Time {
+	t, _ := time.Parse("150405", r.OpenningTime)
+	return t
+}
+
+func (r *ResponseBody) GetOpenCompareSign() Sign {
+	return ConvertSign(r.OpenCompareSign)
+}
+
+func (r *ResponseBody) GetOpenCompare() int {
+	i, _ := strconv.Atoi(r.OpenCompare)
+	return i
+}
+
+func (r *ResponseBody) GetHighTime() time.Time {
+	t, _ := time.Parse("150405", r.HighTime)
+	return t
+}
+
+func (r *ResponseBody) GetHighCompareSign() Sign {
+	return ConvertSign(r.HighCompareSign)
+}
+
+func (r *ResponseBody) GetHighCompare() int {
+	i, _ := strconv.Atoi(r.HighCompare)
+	return i
+}
+
+func (r *ResponseBody) GetLowTime() time.Time {
+	t, _ := time.Parse("150405", r.LowTime)
+	return t
+}
+
+func (r *ResponseBody) GetLowCompareSign() Sign {
+	return ConvertSign(r.LowCompareSign)
+}
+
+func (r *ResponseBody) GetLowCompare() int {
+	i, _ := strconv.Atoi(r.LowCompare)
+	return i
+}
+
+func (r *ResponseBody) GetBusinessDate() time.Time {
+	t, _ := time.Parse("150405", r.HighTime)
+	return t
+}
+
+func (r *ResponseBody) GetNewMarketOpCode() {}
+
+func (r *ResponseBody) GetTransactionSuspension() bool {
+	if r.TransactionSuspension == "Y" {
+		return true
+	} else {
+		return false
+	}
+}
+
+func (r *ResponseBody) GetRemainAsk() int {
+	i, _ := strconv.Atoi(r.RemainAsk)
+	return i
+}
+
+func (r *ResponseBody) GetRemainBid() int {
+	i, _ := strconv.Atoi(r.RemainBid)
+	return i
+}
+
+func (r *ResponseBody) GetTotalRemainAsk() int {
+	i, _ := strconv.Atoi(r.TotalRemainAsk)
+	return i
+}
+
+func (r *ResponseBody) GetTotalRemainBid() int {
+	i, _ := strconv.Atoi(r.TotalRemainBid)
+	return i
+}
+
+func (r *ResponseBody) GetVolumeRotateRate() float64 {
+	f, _ := strconv.ParseFloat(r.VolumeRotateRate, 16)
+	return f
+}
+
+func (r *ResponseBody) GetPreDayTotalVolume() int {
+	i, _ := strconv.Atoi(r.PreDayTotalVolume)
+	return i
+}
+
+func (r *ResponseBody) GetPreDayTotalVolumeRate() float64 {
+	f, _ := strconv.ParseFloat(r.PreDayTotalVolumeRate, 16)
+	return f
+}
+
+func (r *ResponseBody) GetHourClockCode() string {
+	return r.HourClockCode
+}
+
+func (r *ResponseBody) GetMarketTermCode() string {
+	return r.MarketTermCode
+}
+
+func (r *ResponseBody) GetVIStandardPrice() int {
+	i, _ := strconv.Atoi(r.VIStandardPrice)
 	return i
 }

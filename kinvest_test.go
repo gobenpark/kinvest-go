@@ -47,23 +47,6 @@ func Test_RealTimeContract(t *testing.T) {
 	cli.RealtimeContract(context.TODO())
 }
 
-func ConvertSign(sign string) Sign {
-	switch sign {
-	case "1":
-		return Max
-	case "2":
-		return Rise
-	case "3":
-		return Horizontal
-	case "4":
-		return Low
-	case "5":
-		return Drop
-	default:
-		return None
-	}
-}
-
 func Test_BodyParse(t *testing.T) {
 	body := "0|H0STCNT0|001|005930^112616^62700^2^400^0.64^62700.41^62700^63000^62300^62700^62600^125^9694968^607878273600^25807^15918^-9889^93.01^4614191^4291558^1^0.45^63.03^090013^3^0^090646^5^-300^100741^2^400^20230324^20^N^71292^244009^2795345^2044512^0.16^5367918^180.61^0^^62700"
 
@@ -75,6 +58,9 @@ func Test_BodyParse(t *testing.T) {
 	assert.Equal(t, data[2], "001")
 	datas := strings.Split(data[3], "^")
 	res := ResponseBody{
+		Encrypted:                  data[0],
+		TRID:                       data[1],
+		DataCounts:                 data[2],
 		Code:                       datas[0],
 		ContractHour:               datas[1],
 		Price:                      datas[2],
@@ -86,7 +72,7 @@ func Test_BodyParse(t *testing.T) {
 		High:                       datas[8],
 		Low:                        datas[9],
 		AskPrice:                   datas[10],
-		BisPrice:                   datas[11],
+		BidPrice:                   datas[11],
 		ContractVolume:             datas[12],
 		AccumulateVolume:           datas[13],
 		AccumulateTransactionMoney: datas[14],
@@ -100,14 +86,14 @@ func Test_BodyParse(t *testing.T) {
 		BidRate:                    datas[22],
 		PredayVolumeCompareRate:    datas[23],
 		OpenningTime:               datas[24],
-		OpenComapreSign:            datas[25],
-		OpenComapre:                datas[26],
+		OpenCompareSign:            datas[25],
+		OpenCompare:                datas[26],
 		HighTime:                   datas[27],
-		HighVolumePerSign:          datas[28],
+		HighCompareSign:            datas[28],
 		HighCompare:                datas[29],
 		LowTime:                    datas[30],
-		LowVolumePerSign:           datas[31],
-		LowComapre:                 datas[32],
+		LowCompareSign:             datas[31],
+		LowCompare:                 datas[32],
 		BusinessDate:               datas[33],
 		NewMarketOpCode:            datas[34],
 		TransactionSuspension:      datas[35],
@@ -122,6 +108,7 @@ func Test_BodyParse(t *testing.T) {
 		MarketTermCode:             datas[44],
 		VIStandardPrice:            datas[45],
 	}
-	fmt.Println(res)
+	fmt.Println(res.PreDayTotalVolumeRate)
+	fmt.Println(res.PreDayTotalVolume)
 
 }
