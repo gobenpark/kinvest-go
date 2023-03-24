@@ -1,6 +1,9 @@
 package main
 
-import "time"
+import (
+	"strconv"
+	"time"
+)
 
 type Sign int
 
@@ -12,6 +15,23 @@ const (
 	Low
 	Drop
 )
+
+func ConvertSign(sign string) Sign {
+	switch sign {
+	case "1":
+		return Max
+	case "2":
+		return Rise
+	case "3":
+		return Horizontal
+	case "4":
+		return Low
+	case "5":
+		return Drop
+	default:
+		return None
+	}
+}
 
 type SocketBody struct {
 	Header struct {
@@ -29,7 +49,10 @@ type SocketBody struct {
 }
 
 type ResponseBody struct {
-	Code string
+	Encrypted  string
+	TRID       string
+	DataCounts string
+	Code       string
 	// 채결시간 hh:mm:ss
 	ContractHour string
 	Price        string
@@ -50,7 +73,7 @@ type ResponseBody struct {
 	// 매도호가
 	AskPrice string
 	// 매수호가
-	BisPrice string
+	BidPrice string
 	// 체결 거래량
 	ContractVolume string
 	// 누적 거래량
@@ -120,6 +143,19 @@ type ResponseBody struct {
 	VIStandardPrice string
 }
 
+func (r *ResponseBody) GetEncrypted() bool {
+	b, _ := strconv.ParseBool(r.Encrypted)
+	return b
+}
+
+func (r *ResponseBody) GetTRID() string {
+	return r.TRID
+}
+
+func (r *ResponseBody) GetDataCounts() string {
+	return r.DataCounts
+}
+
 func (r *ResponseBody) GetCode() string {
 	return r.Code
 }
@@ -127,4 +163,68 @@ func (r *ResponseBody) GetCode() string {
 func (r *ResponseBody) GetContractHour() time.Time {
 	t, _ := time.Parse("150405", r.ContractHour)
 	return t
+}
+
+func (r *ResponseBody) GetPrice() int {
+	p, _ := strconv.Atoi(r.Price)
+	return p
+}
+
+func (r *ResponseBody) GetCompareSign() Sign {
+	return ConvertSign(r.CompareSign)
+}
+
+func (r *ResponseBody) ComapreDay() int {
+	d, _ := strconv.Atoi(r.CompareDay)
+	return d
+}
+
+func (r *ResponseBody) GetCompareRate() float64 {
+	f, _ := strconv.ParseFloat(r.CompareRate, 32)
+	return f
+}
+
+func (r *ResponseBody) GetWeightAveragePrice() float64 {
+	f, _ := strconv.ParseFloat(r.WeightAveragePrice, 32)
+	return f
+}
+
+func (r *ResponseBody) GetOpen() int {
+	i, _ := strconv.Atoi(r.Open)
+	return i
+}
+
+func (r *ResponseBody) GetHigh() int {
+	i, _ := strconv.Atoi(r.High)
+	return i
+}
+
+func (r *ResponseBody) GetLow() int {
+	i, _ := strconv.Atoi(r.Low)
+	return i
+}
+
+func (r *ResponseBody) GetAskPrice() int {
+	i, _ := strconv.Atoi(r.AskPrice)
+	return i
+}
+
+func (r *ResponseBody) GetBidPrice() int {
+	i, _ := strconv.Atoi(r.BidPrice)
+	return i
+}
+
+func (r *ResponseBody) GetContractVolume() int {
+	i, _ := strconv.Atoi(r.ContractVolume)
+	return i
+}
+
+func (r *ResponseBody) GetAccumulateVolume() int {
+	i, _ := strconv.Atoi(r.AccumulateVolume)
+	return i
+}
+
+func (r *ResponseBody) GetAccumulateTransactionMoney() int64 {
+	i, _ := strconv.ParseInt(r.AccumulateTransactionMoney, 10, 64)
+	return i
 }
