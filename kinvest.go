@@ -4,6 +4,13 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
+type Target int
+
+const (
+	Imitation Target = iota + 1
+	Real
+)
+
 type Kinvest struct {
 	appKey    string
 	secretKey string
@@ -14,7 +21,7 @@ type Kinvest struct {
 	Overseas
 }
 
-func NewKinvest(imitation bool, appKey, secretKey string) *Kinvest {
+func NewKinvest(target Target, appKey, secretKey string) *Kinvest {
 	rest := resty.New()
 	rest.SetBaseURL("https://openapi.koreainvestment.com:9443")
 
@@ -22,7 +29,7 @@ func NewKinvest(imitation bool, appKey, secretKey string) *Kinvest {
 		appKey:    appKey,
 		secretKey: secretKey,
 		rest:      rest,
-		imitation: imitation,
+		imitation: target == Imitation,
 		Domestic: Domestic{
 			appKey:    appKey,
 			secretKey: secretKey,
