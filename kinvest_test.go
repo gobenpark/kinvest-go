@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -12,12 +13,12 @@ import (
 const (
 	AppKey    = ""
 	SecretKey = ""
+	Token     = ""
 )
 
 func MockClient(t *testing.T) *Kinvest {
 	t.Helper()
-
-	cli := NewKinvest(AppKey, SecretKey)
+	cli := NewKinvest(Real, AppKey, SecretKey)
 	return cli
 }
 
@@ -34,6 +35,7 @@ func Test_AccessToken(t *testing.T) {
 	token, err := cli.AccessToken(context.TODO())
 	assert.NoError(t, err)
 	assert.NotEqual(t, token, "")
+	t.Log(token)
 }
 
 func Test_RevokeToken(t *testing.T) {
@@ -56,59 +58,112 @@ func Test_BodyParse(t *testing.T) {
 	assert.Equal(t, data[0], "0")
 	assert.Equal(t, data[1], "H0STCNT0")
 	assert.Equal(t, data[2], "001")
-	datas := strings.Split(data[3], "^")
-	res := ResponseBody{
-		Encrypted:                  data[0],
-		TRID:                       data[1],
-		DataCounts:                 data[2],
-		Code:                       datas[0],
-		ContractHour:               datas[1],
-		Price:                      datas[2],
-		CompareSign:                datas[3],
-		CompareDay:                 datas[4],
-		CompareRate:                datas[5],
-		WeightAveragePrice:         datas[6],
-		Open:                       datas[7],
-		High:                       datas[8],
-		Low:                        datas[9],
-		AskPrice:                   datas[10],
-		BidPrice:                   datas[11],
-		ContractVolume:             datas[12],
-		AccumulateVolume:           datas[13],
-		AccumulateTransactionMoney: datas[14],
-		AskCount:                   datas[15],
-		BidCount:                   datas[16],
-		PureBidCount:               datas[17],
-		VolumePower:                datas[18],
-		TotalAskCounts:             datas[19],
-		TotalBidCounts:             datas[20],
-		ContractDivide:             datas[21],
-		BidRate:                    datas[22],
-		PredayVolumeCompareRate:    datas[23],
-		OpenningTime:               datas[24],
-		OpenCompareSign:            datas[25],
-		OpenCompare:                datas[26],
-		HighTime:                   datas[27],
-		HighCompareSign:            datas[28],
-		HighCompare:                datas[29],
-		LowTime:                    datas[30],
-		LowCompareSign:             datas[31],
-		LowCompare:                 datas[32],
-		BusinessDate:               datas[33],
-		NewMarketOpCode:            datas[34],
-		TransactionSuspension:      datas[35],
-		RemainAsk:                  datas[36],
-		RemainBid:                  datas[37],
-		TotalRemainAsk:             datas[38],
-		TotalRemainBid:             datas[39],
-		VolumeRotateRate:           datas[40],
-		PreDayTotalVolume:          datas[41],
-		PreDayTotalVolumeRate:      datas[42],
-		HourClockCode:              datas[43],
-		MarketTermCode:             datas[44],
-		VIStandardPrice:            datas[45],
+	for _, i := range strings.Split(data[3], "^") {
+		fmt.Println(i)
 	}
-	fmt.Println(res.PreDayTotalVolumeRate)
-	fmt.Println(res.PreDayTotalVolume)
+}
 
+func Test_CurrentPrice(t *testing.T) {
+	cli := MockClient(t)
+	m, err := cli.CurrentPrice(context.TODO(), Token, "J", "005930")
+	assert.NoError(t, err)
+	fmt.Println(m)
+}
+
+func Test_CurrentConclusion(t *testing.T) {
+	cli := MockClient(t)
+	m, err := cli.CurrentConclusion(context.TODO(), Token, "J", "005930")
+	assert.NoError(t, err)
+	fmt.Println(m)
+}
+
+func Test_DailyPrice(t *testing.T) {
+	cli := MockClient(t)
+	m, err := cli.DailyPrice(context.TODO(), Token, "J", "005930")
+	assert.NoError(t, err)
+	fmt.Println(m)
+}
+
+func Test_ExpectAskPrice(t *testing.T) {
+	cli := MockClient(t)
+	m, err := cli.ExpectAskPrice(context.TODO(), Token, "J", "005930")
+	assert.NoError(t, err)
+	fmt.Println(m)
+}
+
+func Test_Investor(t *testing.T) {
+	cli := MockClient(t)
+	m, err := cli.Investor(context.TODO(), Token, "J", "005930")
+	assert.NoError(t, err)
+	fmt.Println(m)
+}
+
+func Test_Member(t *testing.T) {
+	cli := MockClient(t)
+	m, err := cli.Member(context.TODO(), Token, "J", "005930")
+	assert.NoError(t, err)
+	fmt.Println(m)
+}
+
+func Test_CurrentELW(t *testing.T) {
+	cli := MockClient(t)
+	m, err := cli.CurrentELW(context.TODO(), Token, "W", "005930")
+	assert.NoError(t, err)
+	fmt.Println(m)
+}
+
+func Test_DailyChartPrice(t *testing.T) {
+	cli := MockClient(t)
+	m, err := cli.DailyChartPrice(context.TODO(), time.Now().Add(-96*time.Hour), time.Now(), Token, "J", "005930")
+	assert.NoError(t, err)
+	fmt.Println(m)
+}
+
+func Test_CurrentTimePerConclusion(t *testing.T) {
+	cli := MockClient(t)
+	m, err := cli.CurrentTimePerConclusion(context.TODO(), time.Now().Add(-96*time.Hour), Token, "J", "005930")
+	assert.NoError(t, err)
+	fmt.Println(m)
+}
+
+func Test_CurrentOvertimePerConclusion(t *testing.T) {
+	cli := MockClient(t)
+	m, err := cli.CurrentOvertimePerConclusion(context.TODO(), Token, "J", "005930")
+	assert.NoError(t, err)
+	fmt.Println(m)
+}
+
+func Test_DailyOvertimePerPrice(t *testing.T) {
+	cli := MockClient(t)
+	m, err := cli.DailyOvertimePerPrice(context.TODO(), Token, "J", "005930")
+	assert.NoError(t, err)
+	fmt.Println(m)
+}
+
+func Test_CurrentTimeChartPrice(t *testing.T) {
+	cli := MockClient(t)
+	m, err := cli.CurrentTimeChartPrice(context.TODO(), Token, "J", "005930")
+	assert.NoError(t, err)
+	fmt.Println(m)
+}
+
+func Test_ItemInfo(t *testing.T) {
+	cli := MockClient(t)
+	m, err := cli.ItemInfo(context.TODO(), Token, "J", "005930")
+	assert.NoError(t, err)
+	fmt.Println(m)
+}
+
+func Test_Hoilyday(t *testing.T) {
+	cli := MockClient(t)
+	m, err := cli.HoilydayInfo(context.TODO(), time.Now(), Token, "J", "005930")
+	assert.NoError(t, err)
+	fmt.Println(m)
+}
+
+func Test_ForeignTotalInstitution(t *testing.T) {
+	cli := MockClient(t)
+	m, err := cli.ForeignTotalInstitution(context.TODO(), Token)
+	assert.NoError(t, err)
+	fmt.Println(m)
 }
