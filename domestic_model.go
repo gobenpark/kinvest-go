@@ -370,3 +370,209 @@ type ELW struct {
 	MsgCd string `json:"msg_cd"`
 	Msg1  string `json:"msg1"`
 }
+
+type DailyChartPrice struct {
+	Output1 struct {
+		PrdyVrss                 string `json:"prdy_vrss"`
+		PrdyVrssSign             string `json:"prdy_vrss_sign"`
+		PrdyCtrt                 string `json:"prdy_ctrt"`
+		StckPrdyClpr             string `json:"stck_prdy_clpr"`
+		AcmlVol                  string `json:"acml_vol"`
+		AcmlTrPbmn               string `json:"acml_tr_pbmn"`
+		HtsKorIsnm               string `json:"hts_kor_isnm"`
+		StckPrpr                 string `json:"stck_prpr"`
+		StckShrnIscd             string `json:"stck_shrn_iscd"`
+		PrdyVol                  string `json:"prdy_vol"`
+		StckMxpr                 string `json:"stck_mxpr"`
+		StckLlam                 string `json:"stck_llam"`
+		StckOprc                 string `json:"stck_oprc"`
+		StckHgpr                 string `json:"stck_hgpr"`
+		StckLwpr                 string `json:"stck_lwpr"`
+		StckPrdyOprc             string `json:"stck_prdy_oprc"`
+		StckPrdyHgpr             string `json:"stck_prdy_hgpr"`
+		StckPrdyLwpr             string `json:"stck_prdy_lwpr"`
+		Askp                     string `json:"askp"`
+		Bidp                     string `json:"bidp"`
+		PrdyVrssVol              string `json:"prdy_vrss_vol"`
+		VolTnrt                  string `json:"vol_tnrt"`
+		StckFcam                 string `json:"stck_fcam"`
+		LstnStcn                 string `json:"lstn_stcn"`
+		Cpfn                     string `json:"cpfn"`
+		HtsAvls                  string `json:"hts_avls"`
+		Per                      string `json:"per"`
+		Eps                      string `json:"eps"`
+		Pbr                      string `json:"pbr"`
+		ItewholLoanRmndRatemName string `json:"itewhol_loan_rmnd_ratem name"`
+	} `json:"output1"`
+	Output2 []struct {
+		StckBsopDate string `json:"stck_bsop_date"`
+		StckClpr     string `json:"stck_clpr"`
+		StckOprc     string `json:"stck_oprc"`
+		StckHgpr     string `json:"stck_hgpr"`
+		StckLwpr     string `json:"stck_lwpr"`
+		AcmlVol      string `json:"acml_vol"`
+		AcmlTrPbmn   string `json:"acml_tr_pbmn"`
+		FlngClsCode  string `json:"flng_cls_code"`
+		PrttRate     string `json:"prtt_rate"`
+		ModYn        string `json:"mod_yn"`
+		PrdyVrssSign string `json:"prdy_vrss_sign"`
+		PrdyVrss     string `json:"prdy_vrss"`
+		RevlIssuReas string `json:"revl_issu_reas"`
+	} `json:"output2"`
+	RtCd  string `json:"rt_cd"`
+	MsgCd string `json:"msg_cd"`
+	Msg1  string `json:"msg1"`
+}
+
+type Conclusion struct {
+	Output1 struct {
+		OvtmUntpPrpr             string `json:"ovtm_untp_prpr"`
+		OvtmUntpPrdyVrss         string `json:"ovtm_untp_prdy_vrss"`
+		OvtmUntpPrdyVrssSign     string `json:"ovtm_untp_prdy_vrss_sign"`
+		OvtmUntpPrdyCtrt         string `json:"ovtm_untp_prdy_ctrt"`
+		OvtmUntpVol              string `json:"ovtm_untp_vol"`
+		OvtmUntpTrPbmn           string `json:"ovtm_untp_tr_pbmn"`
+		OvtmUntpMxpr             string `json:"ovtm_untp_mxpr"`
+		OvtmUntpLlam             string `json:"ovtm_untp_llam"`
+		OvtmUntpOprc             string `json:"ovtm_untp_oprc"`
+		OvtmUntpHgpr             string `json:"ovtm_untp_hgpr"`
+		OvtmUntpLwpr             string `json:"ovtm_untp_lwpr"`
+		OvtmUntpAntcCnpr         string `json:"ovtm_untp_antc_cnpr"`
+		OvtmUntpAntcCntgVrss     string `json:"ovtm_untp_antc_cntg_vrss"`
+		OvtmUntpAntcCntgVrssSign string `json:"ovtm_untp_antc_cntg_vrss_sign"`
+		OvtmUntpAntcCntgCtrt     string `json:"ovtm_untp_antc_cntg_ctrt"`
+		OvtmUntpAntcVol          string `json:"ovtm_untp_antc_vol"`
+		UplmSign                 string `json:"uplm_sign"`
+		LslmSign                 string `json:"lslm_sign"`
+	} `json:"output1"`
+	Output2 []struct {
+		StckCntgHour string `json:"stck_cntg_hour"`
+		StckPrpr     string `json:"stck_prpr"`
+		PrdyVrss     string `json:"prdy_vrss"`
+		PrdyVrssSign string `json:"prdy_vrss_sign"`
+		PrdyCtrt     string `json:"prdy_ctrt"`
+		Askp         string `json:"askp"`
+		Bidp         string `json:"bidp"`
+		AcmlVol      string `json:"acml_vol"`
+		CntgVol      string `json:"cntg_vol"`
+	} `json:"output2"`
+	RtCd  string `json:"rt_cd"`
+	MsgCd string `json:"msg_cd"`
+	Msg1  string `json:"msg1"`
+}
+
+type OvertimePrice struct {
+	Output1 struct {
+		OvtmUntpPrpr             string `json:"ovtm_untp_prpr"`
+		OvtmUntpPrdyVrss         string `json:"ovtm_untp_prdy_vrss"`
+		OvtmUntpPrdyVrssSign     string `json:"ovtm_untp_prdy_vrss_sign"`
+		OvtmUntpPrdyCtrt         string `json:"ovtm_untp_prdy_ctrt"`
+		OvtmUntpVol              string `json:"ovtm_untp_vol"`
+		OvtmUntpTrPbmn           string `json:"ovtm_untp_tr_pbmn"`
+		OvtmUntpMxpr             string `json:"ovtm_untp_mxpr"`
+		OvtmUntpLlam             string `json:"ovtm_untp_llam"`
+		OvtmUntpOprc             string `json:"ovtm_untp_oprc"`
+		OvtmUntpHgpr             string `json:"ovtm_untp_hgpr"`
+		OvtmUntpLwpr             string `json:"ovtm_untp_lwpr"`
+		OvtmUntpAntcCnpr         string `json:"ovtm_untp_antc_cnpr"`
+		OvtmUntpAntcCntgVrss     string `json:"ovtm_untp_antc_cntg_vrss"`
+		OvtmUntpAntcCntgVrssSign string `json:"ovtm_untp_antc_cntg_vrss_sign"`
+		OvtmUntpAntcCntgCtrt     string `json:"ovtm_untp_antc_cntg_ctrt"`
+		OvtmUntpAntcVol          string `json:"ovtm_untp_antc_vol"`
+	} `json:"output1"`
+	Output2 []struct {
+		StckBsopDate         string `json:"stck_bsop_date"`
+		OvtmUntpPrpr         string `json:"ovtm_untp_prpr"`
+		OvtmUntpPrdyVrss     string `json:"ovtm_untp_prdy_vrss"`
+		OvtmUntpPrdyVrssSign string `json:"ovtm_untp_prdy_vrss_sign"`
+		OvtmUntpPrdyCtrt     string `json:"ovtm_untp_prdy_ctrt"`
+		OvtmUntpVol          string `json:"ovtm_untp_vol"`
+		StckClpr             string `json:"stck_clpr"`
+		PrdyVrss             string `json:"prdy_vrss"`
+		PrdyVrssSign         string `json:"prdy_vrss_sign"`
+		PrdyCtrt             string `json:"prdy_ctrt"`
+		AcmlVol              string `json:"acml_vol"`
+		OvtmUntpTrPbmn       string `json:"ovtm_untp_tr_pbmn"`
+	} `json:"output2"`
+	RtCd  string `json:"rt_cd"`
+	MsgCd string `json:"msg_cd"`
+	Msg1  string `json:"msg1"`
+}
+
+type Item struct {
+	Output struct {
+		Pdno               string `json:"pdno"`
+		PrdtTypeCd         string `json:"prdt_type_cd"`
+		PrdtName           string `json:"prdt_name"`
+		PrdtName120        string `json:"prdt_name120"`
+		PrdtAbrvName       string `json:"prdt_abrv_name"`
+		PrdtEngName        string `json:"prdt_eng_name"`
+		PrdtEngName120     string `json:"prdt_eng_name120"`
+		PrdtEngAbrvName    string `json:"prdt_eng_abrv_name"`
+		StdPdno            string `json:"std_pdno"`
+		ShtnPdno           string `json:"shtn_pdno"`
+		PrdtSaleStatCd     string `json:"prdt_sale_stat_cd"`
+		PrdtRiskGradCd     string `json:"prdt_risk_grad_cd"`
+		PrdtClsfCd         string `json:"prdt_clsf_cd"`
+		PrdtClsfName       string `json:"prdt_clsf_name"`
+		SaleStrtDt         string `json:"sale_strt_dt"`
+		SaleEndDt          string `json:"sale_end_dt"`
+		WrapAsstTypeCd     string `json:"wrap_asst_type_cd"`
+		IvstPrdtTypeCd     string `json:"ivst_prdt_type_cd"`
+		IvstPrdtTypeCdName string `json:"ivst_prdt_type_cd_name"`
+		FrstErlmDt         string `json:"frst_erlm_dt"`
+	} `json:"output"`
+	RtCd  string `json:"rt_cd"`
+	MsgCd string `json:"msg_cd"`
+	Msg1  string `json:"msg1"`
+}
+
+type Hoilyday struct {
+	CtxAreaNk string `json:"ctx_area_nk"`
+	CtxAreaFk string `json:"ctx_area_fk"`
+	Output    []struct {
+		BassDt     string `json:"bass_dt"`
+		WdayDvsnCd string `json:"wday_dvsn_cd"`
+		BzdyYn     string `json:"bzdy_yn"`
+		TrDayYn    string `json:"tr_day_yn"`
+		OpndYn     string `json:"opnd_yn"`
+		SttlDayYn  string `json:"sttl_day_yn"`
+	} `json:"output"`
+	RtCd  string `json:"rt_cd"`
+	MsgCd string `json:"msg_cd"`
+	Msg1  string `json:"msg1"`
+}
+
+type ForeignInstitution struct {
+	Output []struct {
+		HtsKorIsnm        string `json:"hts_kor_isnm"`
+		MkscShrnIscd      string `json:"mksc_shrn_iscd"`
+		NtbyQty           string `json:"ntby_qty"`
+		StckPrpr          string `json:"stck_prpr"`
+		PrdyVrssSign      string `json:"prdy_vrss_sign"`
+		PrdyVrss          string `json:"prdy_vrss"`
+		PrdyCtrt          string `json:"prdy_ctrt"`
+		AcmlVol           string `json:"acml_vol"`
+		FrgnNtbyQty       string `json:"frgn_ntby_qty"`
+		OrgnNtbyQty       string `json:"orgn_ntby_qty"`
+		IvtrNtbyQty       string `json:"ivtr_ntby_qty"`
+		BankNtbyQty       string `json:"bank_ntby_qty"`
+		InsuNtbyQty       string `json:"insu_ntby_qty"`
+		MrbnNtbyQty       string `json:"mrbn_ntby_qty"`
+		FundNtbyQty       string `json:"fund_ntby_qty"`
+		EtcOrgtNtbyVol    string `json:"etc_orgt_ntby_vol"`
+		EtcCorpNtbyVol    string `json:"etc_corp_ntby_vol"`
+		FrgnNtbyTrPbmn    string `json:"frgn_ntby_tr_pbmn"`
+		OrgnNtbyTrPbmn    string `json:"orgn_ntby_tr_pbmn"`
+		IvtrNtbyTrPbmn    string `json:"ivtr_ntby_tr_pbmn"`
+		BankNtbyTrPbmn    string `json:"bank_ntby_tr_pbmn"`
+		InsuNtbyTrPbmn    string `json:"insu_ntby_tr_pbmn"`
+		MrbnNtbyTrPbmn    string `json:"mrbn_ntby_tr_pbmn"`
+		FundNtbyTrPbmn    string `json:"fund_ntby_tr_pbmn"`
+		EtcOrgtNtbyTrPbmn string `json:"etc_orgt_ntby_tr_pbmn"`
+		EtcCorpNtbyTrPbmn string `json:"etc_corp_ntby_tr_pbmn"`
+	} `json:"output"`
+	RtCd  string `json:"rt_cd"`
+	MsgCd string `json:"msg_cd"`
+	Msg1  string `json:"msg1"`
+}
