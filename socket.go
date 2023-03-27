@@ -33,7 +33,24 @@ func ConvertSign(sign string) Sign {
 	}
 }
 
-type SocketBody struct {
+type AccessResponse struct {
+	Header struct {
+		TrId    string `json:"tr_id"`
+		TrKey   string `json:"tr_key"`
+		Encrypt string `json:"encrypt"`
+	} `json:"header"`
+	Body struct {
+		RtCd   string `json:"rt_cd"`
+		MsgCd  string `json:"msg_cd"`
+		Msg1   string `json:"msg1"`
+		Output struct {
+			Iv  string `json:"iv"`
+			Key string `json:"key"`
+		} `json:"output"`
+	} `json:"body"`
+}
+
+type RequestBody struct {
 	Header struct {
 		ApprovalKey string `json:"approval_key"`
 		Custtype    string `json:"custtype"`
@@ -49,10 +66,11 @@ type SocketBody struct {
 }
 
 type ResponseBody struct {
-	Encrypted  string
+	Encrypted  bool
 	TRID       string
 	DataCounts string
-	Code       string
+	// 종목코드
+	Code string
 	// 채결시간 hh:mm:ss
 	ContractHour string
 	Price        string
@@ -129,7 +147,8 @@ type ResponseBody struct {
 	// 총 매도호가 잔량
 	TotalRemainAsk string
 	// 총 매수호가 잔량
-	TotalRemainBid   string
+	TotalRemainBid string
+	// 거래량 회전율
 	VolumeRotateRate string
 	// 전일 동시간 누적 거래량
 	PreDayTotalVolume string
@@ -144,8 +163,7 @@ type ResponseBody struct {
 }
 
 func (r *ResponseBody) GetEncrypted() bool {
-	b, _ := strconv.ParseBool(r.Encrypted)
-	return b
+	return r.Encrypted
 }
 
 func (r *ResponseBody) GetTRID() string {

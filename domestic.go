@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/go-resty/resty/v2"
@@ -84,8 +85,9 @@ func (k *Domestic) RevokeToken(ctx context.Context, token string) error {
 	return nil
 }
 
-func (k *Domestic) RealtimeContract(ctx context.Context) error {
-	b := SocketBody{
+func (k *Domestic) RealtimeContract(ctx context.Context) (<-chan ResponseBody, error) {
+	res := make(chan ResponseBody, 1)
+	b := RequestBody{
 		Header: struct {
 			ApprovalKey string `json:"approval_key"`
 			Custtype    string `json:"custtype"`
@@ -112,20 +114,101 @@ func (k *Domestic) RealtimeContract(ctx context.Context) error {
 			},
 		},
 	}
-	return Retry(5, func() error {
-		c, res, _ := websocket.DefaultDialer.DialContext(ctx, "ws://ops.koreainvestment.com:21000/tryitout/H0STCNT0", nil)
-		fmt.Printf("%#v\n", res)
-		if err := c.WriteJSON(b); err != nil {
-			return err
-		}
-		for {
-			//0|H0STCNT0|001|005930^112616^62700^2^400^0.64^62700.41^62700^63000^62300^62700^62600^125^9694968^607878273600^25807^15918^-9889^93.01^4614191^4291558^1^0.45^63.03^090013^3^0^090646^5^-300^100741^2^400^20230324^20^N^71292^244009^2795345^2044512^0.16^5367918^180.61^0^^62700
-			_, msg, err := c.ReadMessage()
-			fmt.Println(string(msg))
-			fmt.Println(err)
-		}
-	})
 
+	go func() {
+		Retry(5, func() error {
+			c, _, err := websocket.DefaultDialer.DialContext(ctx, "ws://ops.koreainvestment.com:21000/tryitout/H0STCNT0", nil)
+			if err != nil {
+				return err
+			}
+			if err := c.WriteJSON(b); err != nil {
+				return err
+			}
+
+			for {
+
+				//0|H0STCNT0|001|005930^112616^62700^2^400^0.64^62700.41^62700^63000^62300^62700^62600^125^9694968^607878273600^25807^15918^-9889^93.01^4614191^4291558^1^0.45^63.03^090013^3^0^090646^5^-300^100741^2^400^20230324^20^N^71292^244009^2795345^2044512^0.16^5367918^180.61^0^^62700
+				mtype, msg, err := c.ReadMessage()
+				if err != nil {
+					return err
+				}
+
+				switch mtype {
+				case websocket.TextMessage:
+					if msg[0] == '{' {
+						var s AccessResponse
+						if err := json.Unmarshal(msg, &s); err != nil {
+							// is not socket access
+						}
+						fmt.Println(s)
+						continue
+					}
+					ms := strings.Split(string(msg), "|")
+					if ms[0] != "0" && ms[0] != "1" {
+						fmt.Println(err)
+						return errors.New("could not find encrypt value")
+					}
+					tbody := strings.Split(ms[3], "^")
+					body := ResponseBody{}
+					body.Encrypted = ms[0] == "1"
+					body.TRID = ms[1]
+					body.DataCounts = ms[2]
+					body.Code = tbody[0]
+					body.ContractHour = tbody[1]
+					body.Price = tbody[2]
+					body.CompareSign = tbody[3]
+					body.CompareDay = tbody[4]
+					body.CompareRate = tbody[5]
+					body.WeightAveragePrice = tbody[6]
+					body.Open = tbody[7]
+					body.High = tbody[8]
+					body.LowTime = tbody[9]
+					body.AskPrice = tbody[10]
+					body.BidPrice = tbody[11]
+					body.ContractVolume = tbody[12]
+					body.AccumulateVolume = tbody[13]
+					body.AccumulateTransactionMoney = tbody[14]
+					body.AskCount = tbody[15]
+					body.BidCount = tbody[16]
+					body.PureBidCount = tbody[17]
+					body.VolumePower = tbody[18]
+					body.TotalAskCounts = tbody[19]
+					body.TotalBidCounts = tbody[20]
+					body.ContractDivide = tbody[21]
+					body.BidRate = tbody[22]
+					body.PredayVolumeCompareRate = tbody[23]
+					body.OpenningTime = tbody[24]
+					body.OpenCompareSign = tbody[25]
+					body.OpenCompare = tbody[26]
+					body.HighTime = tbody[27]
+					body.HighCompareSign = tbody[28]
+					body.HighCompare = tbody[29]
+					body.LowTime = tbody[30]
+					body.LowCompareSign = tbody[31]
+					body.LowCompare = tbody[32]
+					body.BusinessDate = tbody[33]
+					body.NewMarketOpCode = tbody[34]
+					body.TransactionSuspension = tbody[35]
+					body.RemainAsk = tbody[36]
+					body.RemainBid = tbody[37]
+					body.TotalRemainAsk = tbody[38]
+					body.TotalRemainBid = tbody[39]
+					body.VolumeRotateRate = tbody[40]
+					body.PreDayTotalVolume = tbody[41]
+					body.PreDayTotalVolumeRate = tbody[42]
+					body.HourClockCode = tbody[43]
+					body.MarketTermCode = tbody[44]
+					body.VIStandardPrice = tbody[45]
+
+					if body.DataCounts == "002" {
+						fmt.Println(ms)
+					}
+					res <- body
+				}
+			}
+		})
+	}()
+	return res, nil
 }
 
 // 주식현재가 시세
