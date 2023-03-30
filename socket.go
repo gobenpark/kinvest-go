@@ -65,11 +65,14 @@ type RequestBody struct {
 	} `json:"body"`
 }
 
-type ResponseBody struct {
+type RealtimeResponse struct {
 	Encrypted  bool
 	TRID       string
 	DataCounts string
-	// 종목코드
+	Datas      []RealtimeData
+}
+
+type RealtimeData struct {
 	Code string
 	// 채결시간 hh:mm:ss
 	ContractHour string
@@ -80,7 +83,7 @@ type ResponseBody struct {
 	CompareDay string
 	// 전일 대비율
 	CompareRate string
-	//가중 평균 주식 가격
+	// 가중 평균 주식 가격
 	WeightAveragePrice string
 	// 시가
 	Open string
@@ -106,7 +109,7 @@ type ResponseBody struct {
 	PureBidCount string
 	// 체결강도
 	VolumePower string
-	//총 매도 수량
+	// 총 매도 수량
 	TotalAskCounts string
 	// 총 매수 수량
 	TotalBidCounts string
@@ -162,185 +165,185 @@ type ResponseBody struct {
 	VIStandardPrice string
 }
 
-func (r *ResponseBody) GetEncrypted() bool {
+func (r *RealtimeResponse) GetEncrypted() bool {
 	return r.Encrypted
 }
 
-func (r *ResponseBody) GetTRID() string {
+func (r *RealtimeResponse) GetTRID() string {
 	return r.TRID
 }
 
-func (r *ResponseBody) GetDataCounts() string {
+func (r *RealtimeResponse) GetDataCounts() string {
 	return r.DataCounts
 }
 
-func (r *ResponseBody) GetCode() string {
+func (r *RealtimeData) GetCode() string {
 	return r.Code
 }
 
-func (r *ResponseBody) GetContractHour() time.Time {
+func (r *RealtimeData) GetContractHour() time.Time {
 	t, _ := time.Parse("150405", r.ContractHour)
 	return t
 }
 
-func (r *ResponseBody) GetPrice() int {
+func (r *RealtimeData) GetPrice() int {
 	p, _ := strconv.Atoi(r.Price)
 	return p
 }
 
-func (r *ResponseBody) GetCompareSign() Sign {
+func (r *RealtimeData) GetCompareSign() Sign {
 	return ConvertSign(r.CompareSign)
 }
 
-func (r *ResponseBody) GetCompareDay() int {
+func (r *RealtimeData) GetCompareDay() int {
 	d, _ := strconv.Atoi(r.CompareDay)
 	return d
 }
 
-func (r *ResponseBody) GetCompareRate() float64 {
+func (r *RealtimeData) GetCompareRate() float64 {
 	f, _ := strconv.ParseFloat(r.CompareRate, 32)
 	return f
 }
 
-func (r *ResponseBody) GetWeightAveragePrice() float64 {
+func (r *RealtimeData) GetWeightAveragePrice() float64 {
 	f, _ := strconv.ParseFloat(r.WeightAveragePrice, 32)
 	return f
 }
 
-func (r *ResponseBody) GetOpen() int {
+func (r *RealtimeData) GetOpen() int {
 	i, _ := strconv.Atoi(r.Open)
 	return i
 }
 
-func (r *ResponseBody) GetHigh() int {
+func (r *RealtimeData) GetHigh() int {
 	i, _ := strconv.Atoi(r.High)
 	return i
 }
 
-func (r *ResponseBody) GetLow() int {
+func (r *RealtimeData) GetLow() int {
 	i, _ := strconv.Atoi(r.Low)
 	return i
 }
 
-func (r *ResponseBody) GetAskPrice() int {
+func (r *RealtimeData) GetAskPrice() int {
 	i, _ := strconv.Atoi(r.AskPrice)
 	return i
 }
 
-func (r *ResponseBody) GetBidPrice() int {
+func (r *RealtimeData) GetBidPrice() int {
 	i, _ := strconv.Atoi(r.BidPrice)
 	return i
 }
 
-func (r *ResponseBody) GetContractVolume() int {
+func (r *RealtimeData) GetContractVolume() int {
 	i, _ := strconv.Atoi(r.ContractVolume)
 	return i
 }
 
-func (r *ResponseBody) GetAccumulateVolume() int {
+func (r *RealtimeData) GetAccumulateVolume() int {
 	i, _ := strconv.Atoi(r.AccumulateVolume)
 	return i
 }
 
-func (r *ResponseBody) GetAccumulateTransactionMoney() int64 {
+func (r *RealtimeData) GetAccumulateTransactionMoney() int64 {
 	i, _ := strconv.ParseInt(r.AccumulateTransactionMoney, 10, 64)
 	return i
 }
 
-func (r *ResponseBody) GetAskCount() int {
+func (r *RealtimeData) GetAskCount() int {
 	i, _ := strconv.Atoi(r.AskCount)
 	return i
 }
 
-func (r *ResponseBody) GetBidCount() int {
+func (r *RealtimeData) GetBidCount() int {
 	i, _ := strconv.Atoi(r.BidCount)
 	return i
 }
 
-func (r *ResponseBody) GetPureBidCount() int {
+func (r *RealtimeData) GetPureBidCount() int {
 	i, _ := strconv.Atoi(r.PureBidCount)
 	return i
 }
 
-func (r *ResponseBody) GetVolumePower() float64 {
+func (r *RealtimeData) GetVolumePower() float64 {
 	f, _ := strconv.ParseFloat(r.VolumePower, 32)
 	return f
 }
 
-func (r *ResponseBody) GetTotalAskCounts() int {
+func (r *RealtimeData) GetTotalAskCounts() int {
 	i, _ := strconv.Atoi(r.TotalAskCounts)
 	return i
 }
 
-func (r *ResponseBody) GetTotalBidCounts() int {
+func (r *RealtimeData) GetTotalBidCounts() int {
 	i, _ := strconv.Atoi(r.TotalBidCounts)
 	return i
 }
 
-func (r *ResponseBody) GetContractDivide() string {
+func (r *RealtimeData) GetContractDivide() string {
 	return r.ContractDivide
 }
 
-func (r *ResponseBody) GetBidRate() float64 {
+func (r *RealtimeData) GetBidRate() float64 {
 	f, _ := strconv.ParseFloat(r.BidRate, 32)
 	return f
 }
 
-func (r *ResponseBody) GetPredayVolumeCompareRate() float64 {
+func (r *RealtimeData) GetPredayVolumeCompareRate() float64 {
 	f, _ := strconv.ParseFloat(r.PredayVolumeCompareRate, 32)
 	return f
 }
 
-func (r *ResponseBody) GetOpenningTime() time.Time {
+func (r *RealtimeData) GetOpenningTime() time.Time {
 	t, _ := time.Parse("150405", r.OpenningTime)
 	return t
 }
 
-func (r *ResponseBody) GetOpenCompareSign() Sign {
+func (r *RealtimeData) GetOpenCompareSign() Sign {
 	return ConvertSign(r.OpenCompareSign)
 }
 
-func (r *ResponseBody) GetOpenCompare() int {
+func (r *RealtimeData) GetOpenCompare() int {
 	i, _ := strconv.Atoi(r.OpenCompare)
 	return i
 }
 
-func (r *ResponseBody) GetHighTime() time.Time {
+func (r *RealtimeData) GetHighTime() time.Time {
 	t, _ := time.Parse("150405", r.HighTime)
 	return t
 }
 
-func (r *ResponseBody) GetHighCompareSign() Sign {
+func (r *RealtimeData) GetHighCompareSign() Sign {
 	return ConvertSign(r.HighCompareSign)
 }
 
-func (r *ResponseBody) GetHighCompare() int {
+func (r *RealtimeData) GetHighCompare() int {
 	i, _ := strconv.Atoi(r.HighCompare)
 	return i
 }
 
-func (r *ResponseBody) GetLowTime() time.Time {
+func (r *RealtimeData) GetLowTime() time.Time {
 	t, _ := time.Parse("150405", r.LowTime)
 	return t
 }
 
-func (r *ResponseBody) GetLowCompareSign() Sign {
+func (r *RealtimeData) GetLowCompareSign() Sign {
 	return ConvertSign(r.LowCompareSign)
 }
 
-func (r *ResponseBody) GetLowCompare() int {
+func (r *RealtimeData) GetLowCompare() int {
 	i, _ := strconv.Atoi(r.LowCompare)
 	return i
 }
 
-func (r *ResponseBody) GetBusinessDate() time.Time {
+func (r *RealtimeData) GetBusinessDate() time.Time {
 	t, _ := time.Parse("150405", r.HighTime)
 	return t
 }
 
-func (r *ResponseBody) GetNewMarketOpCode() {}
+func (r *RealtimeData) GetNewMarketOpCode() {}
 
-func (r *ResponseBody) GetTransactionSuspension() bool {
+func (r *RealtimeData) GetTransactionSuspension() bool {
 	if r.TransactionSuspension == "Y" {
 		return true
 	} else {
@@ -348,50 +351,50 @@ func (r *ResponseBody) GetTransactionSuspension() bool {
 	}
 }
 
-func (r *ResponseBody) GetRemainAsk() int {
+func (r *RealtimeData) GetRemainAsk() int {
 	i, _ := strconv.Atoi(r.RemainAsk)
 	return i
 }
 
-func (r *ResponseBody) GetRemainBid() int {
+func (r *RealtimeData) GetRemainBid() int {
 	i, _ := strconv.Atoi(r.RemainBid)
 	return i
 }
 
-func (r *ResponseBody) GetTotalRemainAsk() int {
+func (r *RealtimeData) GetTotalRemainAsk() int {
 	i, _ := strconv.Atoi(r.TotalRemainAsk)
 	return i
 }
 
-func (r *ResponseBody) GetTotalRemainBid() int {
+func (r *RealtimeData) GetTotalRemainBid() int {
 	i, _ := strconv.Atoi(r.TotalRemainBid)
 	return i
 }
 
-func (r *ResponseBody) GetVolumeRotateRate() float64 {
+func (r *RealtimeData) GetVolumeRotateRate() float64 {
 	f, _ := strconv.ParseFloat(r.VolumeRotateRate, 16)
 	return f
 }
 
-func (r *ResponseBody) GetPreDayTotalVolume() int {
+func (r *RealtimeData) GetPreDayTotalVolume() int {
 	i, _ := strconv.Atoi(r.PreDayTotalVolume)
 	return i
 }
 
-func (r *ResponseBody) GetPreDayTotalVolumeRate() float64 {
+func (r *RealtimeData) GetPreDayTotalVolumeRate() float64 {
 	f, _ := strconv.ParseFloat(r.PreDayTotalVolumeRate, 16)
 	return f
 }
 
-func (r *ResponseBody) GetHourClockCode() string {
+func (r *RealtimeData) GetHourClockCode() string {
 	return r.HourClockCode
 }
 
-func (r *ResponseBody) GetMarketTermCode() string {
+func (r *RealtimeData) GetMarketTermCode() string {
 	return r.MarketTermCode
 }
 
-func (r *ResponseBody) GetVIStandardPrice() int {
+func (r *RealtimeData) GetVIStandardPrice() int {
 	i, _ := strconv.Atoi(r.VIStandardPrice)
 	return i
 }

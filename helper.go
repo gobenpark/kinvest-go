@@ -17,3 +17,10 @@ func Retry(max int, f func() error) error {
 		return nil
 	}
 }
+
+func YesOrNo[T comparable](t T, f T, c bool) T {
+	if c {
+		return t
+	}
+	return f
+}

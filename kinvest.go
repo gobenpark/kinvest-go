@@ -4,43 +4,35 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
-type Target int
-
-const (
-	Imitation Target = iota + 1
-	Real
-)
+type Config struct {
+	AppKey    string
+	SecretKey string
+	Token     string
+	Imitation bool
+	Customer  Customer
+}
 
 type Kinvest struct {
-	appKey    string
-	secretKey string
-	rest      *resty.Client
-	imitation bool
+	config *Config
+	rest   *resty.Client
 
 	Domestic
 	Overseas
 }
 
-func NewKinvest(target Target, appKey, secretKey string) *Kinvest {
+func NewKinvest(config *Config) *Kinvest {
 	rest := resty.New()
 	rest.SetBaseURL("https://openapi.koreainvestment.com:9443")
 
 	return &Kinvest{
-		appKey:    appKey,
-		secretKey: secretKey,
-		rest:      rest,
-		imitation: target == Imitation,
+		config: config,
+		rest:   rest,
 		Domestic: Domestic{
-			appKey:    appKey,
-			secretKey: secretKey,
-			rest:      rest,
-			imitation: false,
+			rest:   rest,
+			config: config,
 		},
 		Overseas: Overseas{
-			appKey:    appKey,
-			secretKey: secretKey,
-			rest:      rest,
-			imitation: false,
+			rest: rest,
 		},
 	}
 }

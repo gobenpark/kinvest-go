@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -14,24 +15,16 @@ import (
 )
 
 type Domestic struct {
-	appKey    string
-	secretKey string
-	rest      *resty.Client
-	imitation bool
-}
-
-func NewDomestic(imitation bool, appKey, secretKey string) *Domestic {
-	rest := resty.New()
-	rest.SetBaseURL("https://openapi.koreainvestment.com:9443")
-	return &Domestic{appKey: appKey, secretKey: secretKey, rest: rest, imitation: imitation}
+	config *Config
+	rest   *resty.Client
 }
 
 func (k *Domestic) ApprovalKey(ctx context.Context) (string, error) {
 	res, err := k.rest.R().SetContext(ctx).
 		SetBody(map[string]string{
 			"grant_type": "client_credentials",
-			"appkey":     k.appKey,
-			"secretkey":  k.secretKey,
+			"appkey":     k.config.AppKey,
+			"secretkey":  k.config.SecretKey,
 		}).Post("/oauth2/Approval")
 	if err != nil {
 		return "", err
@@ -43,8 +36,8 @@ func (k *Domestic) HashKey(ctx context.Context, body string) {
 	res, err := k.rest.R().SetContext(ctx).
 		SetBody(map[string]string{
 			"grant_type": "client_credentials",
-			"appkey":     k.appKey,
-			"appsecret":  k.secretKey,
+			"appkey":     k.config.AppKey,
+			"appsecret":  k.config.SecretKey,
 		}).Post("/oauth2/Approval")
 	if err != nil {
 	}
@@ -55,8 +48,8 @@ func (k *Domestic) AccessToken(ctx context.Context) (string, error) {
 	res, err := k.rest.R().SetContext(ctx).
 		SetBody(map[string]string{
 			"grant_type": "client_credentials",
-			"appkey":     k.appKey,
-			"appsecret":  k.secretKey,
+			"appkey":     k.config.AppKey,
+			"appsecret":  k.config.SecretKey,
 		}).Post("/oauth2/tokenP")
 	if err != nil {
 		return "", err
@@ -68,8 +61,8 @@ func (k *Domestic) RevokeToken(ctx context.Context, token string) error {
 	res, err := k.rest.R().SetContext(ctx).
 		SetBody(map[string]string{
 			"grant_type": "client_credentials",
-			"appkey":     k.appKey,
-			"appsecret":  k.secretKey,
+			"appkey":     k.config.AppKey,
+			"appsecret":  k.config.SecretKey,
 		}).Post("/oauth2/revokeP")
 	if err != nil {
 		return err
@@ -85,8 +78,8 @@ func (k *Domestic) RevokeToken(ctx context.Context, token string) error {
 	return nil
 }
 
-func (k *Domestic) RealtimeContract(ctx context.Context) (<-chan ResponseBody, error) {
-	res := make(chan ResponseBody, 1)
+func (k *Domestic) RealtimeContract(ctx context.Context) (<-chan RealtimeResponse, error) {
+	res := make(chan RealtimeResponse, 1)
 	b := RequestBody{
 		Header: struct {
 			ApprovalKey string `json:"approval_key"`
@@ -95,7 +88,7 @@ func (k *Domestic) RealtimeContract(ctx context.Context) (<-chan ResponseBody, e
 			ContentType string `json:"content-type"`
 		}{
 			ApprovalKey: "3daa450a-0685-4c31-b015-99c5e5f4b11d",
-			Custtype:    "P",
+			Custtype:    string(k.config.Customer),
 			TrType:      "1",
 			ContentType: "utf-8",
 		},
@@ -143,66 +136,79 @@ func (k *Domestic) RealtimeContract(ctx context.Context) (<-chan ResponseBody, e
 						fmt.Println(s)
 						continue
 					}
+
 					ms := strings.Split(string(msg), "|")
 					if ms[0] != "0" && ms[0] != "1" {
 						fmt.Println(err)
 						return errors.New("could not find encrypt value")
 					}
+
+					counts, err := strconv.ParseInt(ms[2], 10, 32)
+					if err != nil {
+						return errors.New("fail to parse datacounts")
+					}
+
 					tbody := strings.Split(ms[3], "^")
-					body := ResponseBody{}
+					body := RealtimeResponse{}
 					body.Encrypted = ms[0] == "1"
 					body.TRID = ms[1]
 					body.DataCounts = ms[2]
-					body.Code = tbody[0]
-					body.ContractHour = tbody[1]
-					body.Price = tbody[2]
-					body.CompareSign = tbody[3]
-					body.CompareDay = tbody[4]
-					body.CompareRate = tbody[5]
-					body.WeightAveragePrice = tbody[6]
-					body.Open = tbody[7]
-					body.High = tbody[8]
-					body.LowTime = tbody[9]
-					body.AskPrice = tbody[10]
-					body.BidPrice = tbody[11]
-					body.ContractVolume = tbody[12]
-					body.AccumulateVolume = tbody[13]
-					body.AccumulateTransactionMoney = tbody[14]
-					body.AskCount = tbody[15]
-					body.BidCount = tbody[16]
-					body.PureBidCount = tbody[17]
-					body.VolumePower = tbody[18]
-					body.TotalAskCounts = tbody[19]
-					body.TotalBidCounts = tbody[20]
-					body.ContractDivide = tbody[21]
-					body.BidRate = tbody[22]
-					body.PredayVolumeCompareRate = tbody[23]
-					body.OpenningTime = tbody[24]
-					body.OpenCompareSign = tbody[25]
-					body.OpenCompare = tbody[26]
-					body.HighTime = tbody[27]
-					body.HighCompareSign = tbody[28]
-					body.HighCompare = tbody[29]
-					body.LowTime = tbody[30]
-					body.LowCompareSign = tbody[31]
-					body.LowCompare = tbody[32]
-					body.BusinessDate = tbody[33]
-					body.NewMarketOpCode = tbody[34]
-					body.TransactionSuspension = tbody[35]
-					body.RemainAsk = tbody[36]
-					body.RemainBid = tbody[37]
-					body.TotalRemainAsk = tbody[38]
-					body.TotalRemainBid = tbody[39]
-					body.VolumeRotateRate = tbody[40]
-					body.PreDayTotalVolume = tbody[41]
-					body.PreDayTotalVolumeRate = tbody[42]
-					body.HourClockCode = tbody[43]
-					body.MarketTermCode = tbody[44]
-					body.VIStandardPrice = tbody[45]
 
-					if body.DataCounts == "002" {
-						fmt.Println(ms)
+					idx := 0
+					b := []RealtimeData{}
+					for i := 0; i < int(counts); i++ {
+						b = append(b, RealtimeData{
+							Code:                       tbody[idx+0],
+							ContractHour:               tbody[idx+1],
+							Price:                      tbody[idx+2],
+							CompareSign:                tbody[idx+3],
+							CompareDay:                 tbody[idx+4],
+							CompareRate:                tbody[idx+5],
+							WeightAveragePrice:         tbody[idx+6],
+							Open:                       tbody[idx+7],
+							High:                       tbody[idx+8],
+							Low:                        tbody[idx+9],
+							AskPrice:                   tbody[idx+10],
+							BidPrice:                   tbody[idx+11],
+							ContractVolume:             tbody[idx+12],
+							AccumulateVolume:           tbody[idx+13],
+							AccumulateTransactionMoney: tbody[idx+14],
+							AskCount:                   tbody[idx+15],
+							BidCount:                   tbody[idx+16],
+							PureBidCount:               tbody[idx+17],
+							VolumePower:                tbody[idx+18],
+							TotalAskCounts:             tbody[idx+19],
+							TotalBidCounts:             tbody[idx+20],
+							ContractDivide:             tbody[idx+21],
+							BidRate:                    tbody[idx+22],
+							PredayVolumeCompareRate:    tbody[idx+23],
+							OpenningTime:               tbody[idx+24],
+							OpenCompareSign:            tbody[idx+25],
+							OpenCompare:                tbody[idx+26],
+							HighTime:                   tbody[idx+27],
+							HighCompareSign:            tbody[idx+28],
+							HighCompare:                tbody[idx+29],
+							LowTime:                    tbody[idx+30],
+							LowCompareSign:             tbody[idx+31],
+							LowCompare:                 tbody[idx+32],
+							BusinessDate:               tbody[idx+33],
+							NewMarketOpCode:            tbody[idx+34],
+							TransactionSuspension:      tbody[idx+35],
+							RemainAsk:                  tbody[idx+36],
+							RemainBid:                  tbody[idx+37],
+							TotalRemainAsk:             tbody[idx+38],
+							TotalRemainBid:             tbody[idx+39],
+							VolumeRotateRate:           tbody[idx+40],
+							PreDayTotalVolume:          tbody[idx+41],
+							PreDayTotalVolumeRate:      tbody[idx+42],
+							HourClockCode:              tbody[idx+43],
+							MarketTermCode:             tbody[idx+44],
+							VIStandardPrice:            tbody[idx+45],
+						})
+						idx += 46
 					}
+
+					body.Datas = b
 					res <- body
 				}
 			}
@@ -212,16 +218,16 @@ func (k *Domestic) RealtimeContract(ctx context.Context) (<-chan ResponseBody, e
 }
 
 // 주식현재가 시세
-func (k *Domestic) CurrentPrice(ctx context.Context, token, ftype, code string) (*CurrentPrice, error) {
+func (k *Domestic) CurrentPrice(ctx context.Context, m MarketType, code string) (*CurrentPrice, error) {
 
 	res, err := k.rest.R().SetContext(ctx).SetHeaders(map[string]string{
 		"content-type":  "application/json; charset=utf-8",
-		"authorization": "Bearer " + token,
-		"appkey":        k.appKey,
-		"appsecret":     k.secretKey,
+		"authorization": "Bearer " + k.config.Token,
+		"appkey":        k.config.AppKey,
+		"appsecret":     k.config.SecretKey,
 		"tr_id":         "FHKST01010100",
-		"custtype":      "P",
-	}).SetQueryParam("FID_COND_MRKT_DIV_CODE", ftype).
+		"custtype":      string(k.config.Customer),
+	}).SetQueryParam("FID_COND_MRKT_DIV_CODE", string(m)).
 		SetQueryParam("FID_INPUT_ISCD", code).
 		Get("/uapi/domestic-stock/v1/quotations/inquire-price")
 	if err != nil {
@@ -235,15 +241,15 @@ func (k *Domestic) CurrentPrice(ctx context.Context, token, ftype, code string) 
 }
 
 // 주식현재가 체결
-func (k *Domestic) CurrentConclusion(ctx context.Context, token, ftype, code string) (*CurrentConclusion, error) {
+func (k *Domestic) CurrentConclusion(ctx context.Context, m MarketType, code string) (*CurrentConclusion, error) {
 	res, err := k.rest.R().SetContext(ctx).SetHeaders(map[string]string{
 		"content-type":  "application/json; charset=utf-8",
-		"authorization": "Bearer " + token,
-		"appkey":        k.appKey,
-		"appsecret":     k.secretKey,
+		"authorization": "Bearer " + k.config.Token,
+		"appkey":        k.config.AppKey,
+		"appsecret":     k.config.SecretKey,
 		"tr_id":         "FHKST01010300",
-		"custtype":      "P",
-	}).SetQueryParam("FID_COND_MRKT_DIV_CODE", ftype).
+		"custtype":      string(k.config.Customer),
+	}).SetQueryParam("FID_COND_MRKT_DIV_CODE", string(m)).
 		SetQueryParam("FID_INPUT_ISCD", code).
 		Get("/uapi/domestic-stock/v1/quotations/inquire-ccnl")
 	if err != nil {
@@ -258,18 +264,18 @@ func (k *Domestic) CurrentConclusion(ctx context.Context, token, ftype, code str
 }
 
 // 현재가 일자별 일/주/월별 주가를 확인할 수 있으며 최근 30일(주,별)로 제한되어있습니다.
-func (k *Domestic) DailyPrice(ctx context.Context, token, ftype, code string) (*DailyPrice, error) {
+func (k *Domestic) DailyPrice(ctx context.Context, m MarketType, p Period, code string, adjustPrice bool) (*DailyPrice, error) {
 	res, err := k.rest.R().SetContext(ctx).SetHeaders(map[string]string{
 		"content-type":  "application/json; charset=utf-8",
-		"authorization": "Bearer " + token,
-		"appkey":        k.appKey,
-		"appsecret":     k.secretKey,
+		"authorization": "Bearer " + k.config.Token,
+		"appkey":        k.config.AppKey,
+		"appsecret":     k.config.SecretKey,
 		"tr_id":         "FHKST01010400",
-		"custtype":      "P",
-	}).SetQueryParam("FID_COND_MRKT_DIV_CODE", ftype).
+		"custtype":      string(k.config.Customer),
+	}).SetQueryParam("FID_COND_MRKT_DIV_CODE", string(m)).
 		SetQueryParam("FID_INPUT_ISCD", code).
-		SetQueryParam("FID_PERIOD_DIV_CODE", "D").
-		SetQueryParam("FID_ORG_ADJ_PRC", "0").
+		SetQueryParam("FID_PERIOD_DIV_CODE", string(p)).
+		SetQueryParam("FID_ORG_ADJ_PRC", YesOrNo("0", "1", adjustPrice)).
 		Get("/uapi/domestic-stock/v1/quotations/inquire-daily-price")
 	if err != nil {
 		return nil, err
@@ -285,15 +291,15 @@ func (k *Domestic) DailyPrice(ctx context.Context, token, ftype, code string) (*
 }
 
 // 주식현재가 호가 예상체결 API입니다. 매수 매도 호가를 확인하실 수 있습니다. 실시간 데이터를 원하신다면 웹소켓 API를 활용하세요.
-func (k *Domestic) ExpectAskPrice(ctx context.Context, token, ftype, code string) (*ExpectPrice, error) {
+func (k *Domestic) ExpectAskPrice(ctx context.Context, m MarketType, code string) (*ExpectPrice, error) {
 	res, err := k.rest.R().SetContext(ctx).SetHeaders(map[string]string{
 		"content-type":  "application/json; charset=utf-8",
-		"authorization": "Bearer " + token,
-		"appkey":        k.appKey,
-		"appsecret":     k.secretKey,
+		"authorization": "Bearer " + k.config.Token,
+		"appkey":        k.config.AppKey,
+		"appsecret":     k.config.SecretKey,
 		"tr_id":         "FHKST01010200",
-		"custtype":      "P",
-	}).SetQueryParam("FID_COND_MRKT_DIV_CODE", ftype).
+		"custtype":      string(k.config.Customer),
+	}).SetQueryParam("FID_COND_MRKT_DIV_CODE", string(m)).
 		SetQueryParam("FID_INPUT_ISCD", code).
 		Get("/uapi/domestic-stock/v1/quotations/inquire-asking-price-exp-ccn")
 	if err != nil {
@@ -312,15 +318,15 @@ func (k *Domestic) ExpectAskPrice(ctx context.Context, token, ftype, code string
 // [유의사항]
 // - 외국인은 외국인(외국인투자등록 고유번호가 있는 경우)+기타 외국인을 지칭합니다.
 // - 당일 데이터는 장 종료 후 제공됩니다.
-func (k *Domestic) Investor(ctx context.Context, token, ftype, code string) (*Investor, error) {
+func (k *Domestic) Investor(ctx context.Context, m MarketType, code string) (*Investor, error) {
 	res, err := k.rest.R().SetContext(ctx).SetHeaders(map[string]string{
 		"content-type":  "application/json; charset=utf-8",
-		"authorization": "Bearer " + token,
-		"appkey":        k.appKey,
-		"appsecret":     k.secretKey,
+		"authorization": "Bearer " + k.config.Token,
+		"appkey":        k.config.AppKey,
+		"appsecret":     k.config.SecretKey,
 		"tr_id":         "FHKST01010900",
-		"custtype":      "P",
-	}).SetQueryParam("FID_COND_MRKT_DIV_CODE", ftype).
+		"custtype":      string(k.config.Customer),
+	}).SetQueryParam("FID_COND_MRKT_DIV_CODE", string(m)).
 		SetQueryParam("FID_INPUT_ISCD", code).
 		Get("/uapi/domestic-stock/v1/quotations/inquire-investor")
 	if err != nil {
@@ -335,15 +341,15 @@ func (k *Domestic) Investor(ctx context.Context, token, ftype, code string) (*In
 }
 
 // 주식 현재가 회원사 API입니다. 회원사의 투자 정보를 확인할 수 있습니다.
-func (k *Domestic) Member(ctx context.Context, token, ftype, code string) (*Member, error) {
+func (k *Domestic) Member(ctx context.Context, m MarketType, code string) (*Member, error) {
 	res, err := k.rest.R().SetContext(ctx).SetHeaders(map[string]string{
 		"content-type":  "application/json; charset=utf-8",
-		"authorization": "Bearer " + token,
-		"appkey":        k.appKey,
-		"appsecret":     k.secretKey,
+		"authorization": "Bearer " + k.config.Token,
+		"appkey":        k.config.AppKey,
+		"appsecret":     k.config.SecretKey,
 		"tr_id":         "FHKST01010600",
-		"custtype":      "P",
-	}).SetQueryParam("FID_COND_MRKT_DIV_CODE", ftype).
+		"custtype":      string(k.config.Customer),
+	}).SetQueryParam("FID_COND_MRKT_DIV_CODE", string(m)).
 		SetQueryParam("FID_INPUT_ISCD", code).
 		Get("/uapi/domestic-stock/v1/quotations/inquire-member")
 	if err != nil {
@@ -359,15 +365,15 @@ func (k *Domestic) Member(ctx context.Context, token, ftype, code string) (*Memb
 }
 
 // ELW 현재가 시세 API입니다. ELW 관련 정보를 얻을 수 있습니다.
-func (k *Domestic) CurrentELW(ctx context.Context, token, ftype, code string) (*ELW, error) {
+func (k *Domestic) CurrentELW(ctx context.Context, m MarketType, code string) (*ELW, error) {
 	res, err := k.rest.R().SetContext(ctx).SetHeaders(map[string]string{
 		"content-type":  "application/json; charset=utf-8",
-		"authorization": "Bearer " + token,
-		"appkey":        k.appKey,
-		"appsecret":     k.secretKey,
+		"authorization": "Bearer " + k.config.Token,
+		"appkey":        k.config.AppKey,
+		"appsecret":     k.config.SecretKey,
 		"tr_id":         "FHKEW15010000",
-		"custtype":      "P",
-	}).SetQueryParam("FID_COND_MRKT_DIV_CODE", ftype).
+		"custtype":      string(k.config.Customer),
+	}).SetQueryParam("FID_COND_MRKT_DIV_CODE", string(m)).
 		SetQueryParam("FID_INPUT_ISCD", code).
 		Get("/uapi/domestic-stock/v1/quotations/inquire-elw-price")
 	if err != nil {
@@ -384,22 +390,22 @@ func (k *Domestic) CurrentELW(ctx context.Context, token, ftype, code string) (*
 
 // 국내주식 업종기간별시세(일/주/월/년) API입니다.
 // 실전계좌/모의계좌의 경우, 한 번의 호출에 최대 50건까지 확인 가능합니다.
-func (k *Domestic) DailyChartPrice(ctx context.Context, start time.Time, end time.Time, token, ftype, code string) (*DailyChartPrice, error) {
+func (k *Domestic) DailyChartPrice(ctx context.Context, start time.Time, end time.Time, m MarketType, p Period, code string, adjustPrice bool) (*DailyChartPrice, error) {
 	res, err := k.rest.R().SetContext(ctx).SetHeaders(map[string]string{
 		"content-type":  "application/json; charset=utf-8",
-		"authorization": "Bearer " + token,
-		"appkey":        k.appKey,
-		"appsecret":     k.secretKey,
+		"authorization": "Bearer " + k.config.Token,
+		"appkey":        k.config.AppKey,
+		"appsecret":     k.config.SecretKey,
 		"tr_id":         "FHKST03010100",
-		"custtype":      "P",
-	}).SetQueryParam("FID_COND_MRKT_DIV_CODE", ftype).
+		"custtype":      string(k.config.Customer),
+	}).SetQueryParam("FID_COND_MRKT_DIV_CODE", string(m)).
 		SetQueryParam("FID_INPUT_ISCD", code).
 		SetQueryParam("FID_INPUT_DATE_1", start.Format("20060102")).
 		SetQueryParam("FID_INPUT_DATE_2", end.Format("20060102")).
 		//D일봉,W:주봉,M월봉,Y년봉
-		SetQueryParam("FID_PERIOD_DIV_CODE", "D").
+		SetQueryParam("FID_PERIOD_DIV_CODE", string(p)).
 		//수정주가 여부 0: 수정주가, 1원주가
-		SetQueryParam("FID_ORG_ADJ_PRC", "0").
+		SetQueryParam("FID_ORG_ADJ_PRC", YesOrNo("0", "1", adjustPrice)).
 		Get("/uapi/domestic-stock/v1/quotations/inquire-daily-itemchartprice")
 	if err != nil {
 		return nil, err
@@ -414,15 +420,15 @@ func (k *Domestic) DailyChartPrice(ctx context.Context, start time.Time, end tim
 }
 
 // 주식현재가 당일시간대별체결 API입니다.
-func (k *Domestic) CurrentTimePerConclusion(ctx context.Context, startDate time.Time, token, ftype, code string) (*Conclusion, error) {
+func (k *Domestic) CurrentTimePerConclusion(ctx context.Context, startDate time.Time, m MarketType, code string) (*Conclusion, error) {
 	res, err := k.rest.R().SetContext(ctx).SetHeaders(map[string]string{
 		"content-type":  "application/json; charset=utf-8",
-		"authorization": "Bearer " + token,
-		"appkey":        k.appKey,
-		"appsecret":     k.secretKey,
+		"authorization": "Bearer " + k.config.Token,
+		"appkey":        k.config.AppKey,
+		"appsecret":     k.config.SecretKey,
 		"tr_id":         "FHPST01060000",
-		"custtype":      "P",
-	}).SetQueryParam("FID_COND_MRKT_DIV_CODE", ftype).
+		"custtype":      string(k.config.Customer),
+	}).SetQueryParam("FID_COND_MRKT_DIV_CODE", string(m)).
 		SetQueryParam("FID_INPUT_ISCD", code).
 		SetQueryParam("FID_INPUT_DATE_1", startDate.Format("20060102")).
 		Get("/uapi/domestic-stock/v1/quotations/inquire-time-itemconclusion")
@@ -439,15 +445,15 @@ func (k *Domestic) CurrentTimePerConclusion(ctx context.Context, startDate time.
 }
 
 // 주식현재가 시간외시간별체결 API입니다.
-func (k *Domestic) CurrentOvertimePerConclusion(ctx context.Context, token, ftype, code string) (*Conclusion, error) {
+func (k *Domestic) CurrentOvertimePerConclusion(ctx context.Context, m MarketType, code string) (*Conclusion, error) {
 	res, err := k.rest.R().SetContext(ctx).SetHeaders(map[string]string{
 		"content-type":  "application/json; charset=utf-8",
-		"authorization": "Bearer " + token,
-		"appkey":        k.appKey,
-		"appsecret":     k.secretKey,
+		"authorization": "Bearer " + k.config.Token,
+		"appkey":        k.config.AppKey,
+		"appsecret":     k.config.SecretKey,
 		"tr_id":         "FHPST02310000",
-		"custtype":      "P",
-	}).SetQueryParam("FID_COND_MRKT_DIV_CODE", ftype).
+		"custtype":      string(k.config.Customer),
+	}).SetQueryParam("FID_COND_MRKT_DIV_CODE", string(m)).
 		SetQueryParam("FID_INPUT_ISCD", code).
 		SetQueryParam("FID_HOUR_CLS_CODE", "1").
 		Get("/uapi/domestic-stock/v1/quotations/inquire-time-overtimeconclusion")
@@ -464,15 +470,15 @@ func (k *Domestic) CurrentOvertimePerConclusion(ctx context.Context, token, ftyp
 }
 
 // 주식현재가 시간외일자별주가 API입니다.
-func (k *Domestic) DailyOvertimePerPrice(ctx context.Context, token, ftype, code string) (*OvertimePrice, error) {
+func (k *Domestic) DailyOvertimePerPrice(ctx context.Context, m MarketType, code string) (*OvertimePrice, error) {
 	res, err := k.rest.R().SetContext(ctx).SetHeaders(map[string]string{
 		"content-type":  "application/json; charset=utf-8",
-		"authorization": "Bearer " + token,
-		"appkey":        k.appKey,
-		"appsecret":     k.secretKey,
+		"authorization": "Bearer " + k.config.Token,
+		"appkey":        k.config.AppKey,
+		"appsecret":     k.config.SecretKey,
 		"tr_id":         "FHPST02320000",
-		"custtype":      "P",
-	}).SetQueryParam("FID_COND_MRKT_DIV_CODE", ftype).
+		"custtype":      string(k.config.Customer),
+	}).SetQueryParam("FID_COND_MRKT_DIV_CODE", string(m)).
 		SetQueryParam("FID_INPUT_ISCD", code).
 		Get("/uapi/domestic-stock/v1/quotations/inquire-daily-overtimeprice")
 	if err != nil {
@@ -488,15 +494,15 @@ func (k *Domestic) DailyOvertimePerPrice(ctx context.Context, token, ftype, code
 
 // 주식당일분봉조회 API입니다.
 // 실전계좌/모의계좌의 경우, 한 번의 호출에 최대 30건까지 확인 가능합니다.
-func (k *Domestic) CurrentTimeChartPrice(ctx context.Context, token, ftype, code string) (*OvertimePrice, error) {
+func (k *Domestic) CurrentTimeChartPrice(ctx context.Context, m MarketType, code string) (*OvertimePrice, error) {
 	res, err := k.rest.R().SetContext(ctx).SetHeaders(map[string]string{
 		"content-type":  "application/json; charset=utf-8",
-		"authorization": "Bearer " + token,
-		"appkey":        k.appKey,
-		"appsecret":     k.secretKey,
+		"authorization": "Bearer " + k.config.Token,
+		"appkey":        k.config.AppKey,
+		"appsecret":     k.config.SecretKey,
 		"tr_id":         "FHKST03010200",
-		"custtype":      "P",
-	}).SetQueryParam("FID_COND_MRKT_DIV_CODE", ftype).
+		"custtype":      string(k.config.Customer),
+	}).SetQueryParam("FID_COND_MRKT_DIV_CODE", string(m)).
 		SetQueryParam("FID_INPUT_ISCD", code).
 		Get("/uapi/domestic-stock/v1/quotations/inquire-time-itemchartprice")
 	if err != nil {
@@ -511,16 +517,16 @@ func (k *Domestic) CurrentTimeChartPrice(ctx context.Context, token, ftype, code
 }
 
 // 상품 기본조회
-func (k *Domestic) ItemInfo(ctx context.Context, token, ftype, code string) (*Item, error) {
+func (k *Domestic) ItemInfo(ctx context.Context, code string) (*Item, error) {
 	res, err := k.rest.R().SetContext(ctx).SetHeaders(map[string]string{
 		"content-type":  "application/json; charset=utf-8",
-		"authorization": "Bearer " + token,
-		"appkey":        k.appKey,
-		"appsecret":     k.secretKey,
+		"authorization": "Bearer " + k.config.Token,
+		"appkey":        k.config.AppKey,
+		"appsecret":     k.config.SecretKey,
 		"tr_id":         "CTPF1604R",
 		// 공백: 초기조회,N 다음데이터 조회 Res Header가 M일경우
 		"tr_cont":  "",
-		"custtype": "P",
+		"custtype": string(k.config.Customer),
 	}).
 		//'주식(하이닉스) : 000660 (코드 : 300)
 		//선물(101S12) : KR4101SC0009 (코드 : 301)
@@ -548,16 +554,16 @@ func (k *Domestic) ItemInfo(ctx context.Context, token, ftype, code string) (*It
 }
 
 // 휴장일 조회
-func (k *Domestic) HoilydayInfo(ctx context.Context, date time.Time, token, ftype, code string) (*Hoilyday, error) {
+func (k *Domestic) HoilydayInfo(ctx context.Context, date time.Time) (*Hoilyday, error) {
 	res, err := k.rest.R().SetContext(ctx).SetHeaders(map[string]string{
 		"content-type":  "application/json; charset=utf-8",
-		"authorization": "Bearer " + token,
-		"appkey":        k.appKey,
-		"appsecret":     k.secretKey,
+		"authorization": "Bearer " + k.config.Token,
+		"appkey":        k.config.AppKey,
+		"appsecret":     k.config.SecretKey,
 		"tr_id":         "CTCA0903R",
 		// 공백: 초기조회,N 다음데이터 조회 Res Header가 M일경우
 		"tr_cont":  "",
-		"custtype": "P",
+		"custtype": string(k.config.Customer),
 	}).
 		SetQueryParam("BASS_DT", date.Format("20060102")).
 		SetQueryParam("CTX_AREA_NK", "").
@@ -566,7 +572,6 @@ func (k *Domestic) HoilydayInfo(ctx context.Context, date time.Time, token, ftyp
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(res.String())
 	var d Hoilyday
 	if err := json.Unmarshal(res.Body(), &d); err != nil {
 		return nil, err
@@ -577,16 +582,16 @@ func (k *Domestic) HoilydayInfo(ctx context.Context, date time.Time, token, ftyp
 // 국내기관_외국인 매매종목가집계 API입니다.
 // 증권사 직원이 장중에 집계/입력한 자료를 단순 누계한 수치로서,
 // 입력시간은 외국인 09:30, 11:20, 13:20, 14:30 / 기관종합 10:00, 11:20, 13:20, 14:30 이며, 사정에 따라 변동될 수 있습니다.
-func (k *Domestic) ForeignTotalInstitution(ctx context.Context, token string) (*ForeignInstitution, error) {
+func (k *Domestic) ForeignTotalInstitution(ctx context.Context) (*ForeignInstitution, error) {
 	res, err := k.rest.R().SetContext(ctx).SetHeaders(map[string]string{
 		"content-type":  "application/json; charset=utf-8",
-		"authorization": "Bearer " + token,
-		"appkey":        k.appKey,
-		"appsecret":     k.secretKey,
+		"authorization": "Bearer " + k.config.Token,
+		"appkey":        k.config.AppKey,
+		"appsecret":     k.config.SecretKey,
 		"tr_id":         "FHPTJ04400000",
 		// 공백: 초기조회,N 다음데이터 조회 Res Header가 M일경우
 		"tr_cont":  "",
-		"custtype": "P",
+		"custtype": string(k.config.Customer),
 	}).
 		SetQueryParam("FID_COND_MRKT_DIV_CODE", "V").
 		SetQueryParam("FID_COND_SCR_DIV_CODE", "16449").
@@ -610,4 +615,32 @@ func (k *Domestic) ForeignTotalInstitution(ctx context.Context, token string) (*
 		return nil, err
 	}
 	return &d, nil
+}
+
+// 주문가능 조회
+// account:계좌번호,code:계좌상품코드,product:상품번호,perprice:주문단가,orderDVS:주문구분
+// incma: cma평가금액 포함여부,inoverseas: 해외포함여
+func (k *Domestic) PossibleOrder(ctx context.Context, account, code, product, perprice string, orderDVS OrderType, incma, inoverseas bool) error {
+	res, err := k.rest.R().SetContext(ctx).SetHeaders(map[string]string{
+		"content-type":  "application/json; charset=utf-8",
+		"authorization": "Bearer " + k.config.Token,
+		"appsecret":     k.config.SecretKey,
+		"tr_id":         "FHPTJ04400000",
+		// 공백: 초기조회,N 다음데이터 조회 Res Header가 M일경우
+		"tr_cont":  "",
+		"custtype": string(k.config.Customer),
+	}).
+		SetQueryParam("CANO", account).
+		SetQueryParam("ACNT_PRDT_CD", code).
+		SetQueryParam("PDNO", product).
+		SetQueryParam("ORD_UNPR", perprice).
+		SetQueryParam("ORD_DVSN", string(orderDVS)).
+		SetQueryParam("CMA_EVLU_AMT_ICLD_YN", YesOrNo("Y", "N", incma)).
+		SetQueryParam("OVRS_ICLD_YN", YesOrNo("Y", "N", inoverseas)).
+		Get("/uapi/domestic-stock/v1/trading/inquire-psbl-order")
+	if err != nil {
+		return err
+	}
+	fmt.Println(res.String())
+	return nil
 }
