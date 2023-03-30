@@ -11,71 +11,11 @@ import (
 
 	"github.com/go-resty/resty/v2"
 	"github.com/gorilla/websocket"
-	"github.com/tidwall/gjson"
 )
 
 type Domestic struct {
 	config *Config
 	rest   *resty.Client
-}
-
-func (k *Domestic) ApprovalKey(ctx context.Context) (string, error) {
-	res, err := k.rest.R().SetContext(ctx).
-		SetBody(map[string]string{
-			"grant_type": "client_credentials",
-			"appkey":     k.config.AppKey,
-			"secretkey":  k.config.SecretKey,
-		}).Post("/oauth2/Approval")
-	if err != nil {
-		return "", err
-	}
-	return gjson.GetBytes(res.Body(), "approval_key").String(), nil
-}
-
-func (k *Domestic) HashKey(ctx context.Context, body string) {
-	res, err := k.rest.R().SetContext(ctx).
-		SetBody(map[string]string{
-			"grant_type": "client_credentials",
-			"appkey":     k.config.AppKey,
-			"appsecret":  k.config.SecretKey,
-		}).Post("/oauth2/Approval")
-	if err != nil {
-	}
-	_ = res
-}
-
-func (k *Domestic) AccessToken(ctx context.Context) (string, error) {
-	res, err := k.rest.R().SetContext(ctx).
-		SetBody(map[string]string{
-			"grant_type": "client_credentials",
-			"appkey":     k.config.AppKey,
-			"appsecret":  k.config.SecretKey,
-		}).Post("/oauth2/tokenP")
-	if err != nil {
-		return "", err
-	}
-	return gjson.GetBytes(res.Body(), "access_token").String(), nil
-}
-
-func (k *Domestic) RevokeToken(ctx context.Context, token string) error {
-	res, err := k.rest.R().SetContext(ctx).
-		SetBody(map[string]string{
-			"grant_type": "client_credentials",
-			"appkey":     k.config.AppKey,
-			"appsecret":  k.config.SecretKey,
-		}).Post("/oauth2/revokeP")
-	if err != nil {
-		return err
-	}
-
-	//TODO: mapping error case
-	//{"error_description":"유효하지 않은 token 입니다.","error_code":"EGW00121"}
-
-	if gjson.GetBytes(res.Body(), "code").Int() != 200 {
-		return errors.New("fail revoke token")
-	}
-
-	return nil
 }
 
 func (k *Domestic) RealtimeContract(ctx context.Context) (<-chan RealtimeResponse, error) {
@@ -615,32 +555,4 @@ func (k *Domestic) ForeignTotalInstitution(ctx context.Context) (*ForeignInstitu
 		return nil, err
 	}
 	return &d, nil
-}
-
-// 주문가능 조회
-// account:계좌번호,code:계좌상품코드,product:상품번호,perprice:주문단가,orderDVS:주문구분
-// incma: cma평가금액 포함여부,inoverseas: 해외포함여
-func (k *Domestic) PossibleOrder(ctx context.Context, account, code, product, perprice string, orderDVS OrderType, incma, inoverseas bool) error {
-	res, err := k.rest.R().SetContext(ctx).SetHeaders(map[string]string{
-		"content-type":  "application/json; charset=utf-8",
-		"authorization": "Bearer " + k.config.Token,
-		"appsecret":     k.config.SecretKey,
-		"tr_id":         "FHPTJ04400000",
-		// 공백: 초기조회,N 다음데이터 조회 Res Header가 M일경우
-		"tr_cont":  "",
-		"custtype": string(k.config.Customer),
-	}).
-		SetQueryParam("CANO", account).
-		SetQueryParam("ACNT_PRDT_CD", code).
-		SetQueryParam("PDNO", product).
-		SetQueryParam("ORD_UNPR", perprice).
-		SetQueryParam("ORD_DVSN", string(orderDVS)).
-		SetQueryParam("CMA_EVLU_AMT_ICLD_YN", YesOrNo("Y", "N", incma)).
-		SetQueryParam("OVRS_ICLD_YN", YesOrNo("Y", "N", inoverseas)).
-		Get("/uapi/domestic-stock/v1/trading/inquire-psbl-order")
-	if err != nil {
-		return err
-	}
-	fmt.Println(res.String())
-	return nil
 }

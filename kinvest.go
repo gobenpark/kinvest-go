@@ -10,6 +10,7 @@ type Config struct {
 	Token     string
 	Imitation bool
 	Customer  Customer
+	Account   string
 }
 
 type Kinvest struct {
@@ -18,12 +19,13 @@ type Kinvest struct {
 
 	Domestic
 	Overseas
+	Account
 }
 
 func NewKinvest(config *Config) *Kinvest {
 	rest := resty.New()
 	rest.SetBaseURL("https://openapi.koreainvestment.com:9443")
-
+	rest.SetDebug(true)
 	return &Kinvest{
 		config: config,
 		rest:   rest,
@@ -33,6 +35,10 @@ func NewKinvest(config *Config) *Kinvest {
 		},
 		Overseas: Overseas{
 			rest: rest,
+		},
+		Account: Account{
+			rest:   rest,
+			config: config,
 		},
 	}
 }
