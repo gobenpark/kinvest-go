@@ -14,7 +14,14 @@ go get github.com/gobenpark/kinvest-go
 ## Usage
 
 ```go
-client := NewKinvest(false,"appkey","secretkey")
+cli := NewKinvest(&Config{
+    AppKey:    AppKey,
+    SecretKey: SecretKey,
+    Imitation: false,
+    Customer:  Person,
+    Token:     Token,
+    Account:   "",
+})
 
 // Do something
 client... 

@@ -15,7 +15,7 @@ func MockClient(t *testing.T) *Kinvest {
 		Imitation: false,
 		Customer:  Person,
 		Token:     Token,
-		Account:   "63702268",
+		Account:   "",
 	})
 	return cli
 }
