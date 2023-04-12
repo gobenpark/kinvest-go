@@ -26,7 +26,7 @@ const (
 	Month Period = "M"
 
 	Limit         OrderType = "00"
-	Market        OrderType = "01"
+	MarketPrice   OrderType = "01"
 	Conditional   OrderType = "02"
 	BestAdvantage OrderType = "03"
 	BestPriority  OrderType = "04"

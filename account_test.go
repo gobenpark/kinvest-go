@@ -7,6 +7,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const (
+	AppKey    = ""
+	SecretKey = ""
+	Token     = ""
+)
+
 func MockClient(t *testing.T) *Kinvest {
 	t.Helper()
 	cli := NewKinvest(&Config{
