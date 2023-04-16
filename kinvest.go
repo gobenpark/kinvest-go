@@ -16,7 +16,7 @@ type Config struct {
 type Kinvest struct {
 	config *Config
 	rest   *resty.Client
-
+	*CodeManager
 	Domestic
 	Overseas
 	Account
@@ -25,7 +25,6 @@ type Kinvest struct {
 func NewKinvest(config *Config) *Kinvest {
 	rest := resty.New()
 	rest.SetBaseURL("https://openapi.koreainvestment.com:9443")
-	rest.SetDebug(true)
 	return &Kinvest{
 		config: config,
 		rest:   rest,
@@ -40,5 +39,6 @@ func NewKinvest(config *Config) *Kinvest {
 			rest:   rest,
 			config: config,
 		},
+		CodeManager: NewCodeManager(rest),
 	}
 }

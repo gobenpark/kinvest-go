@@ -1,14 +1,10 @@
 package main
 
 import (
-	"archive/zip"
-	"bytes"
 	"context"
-	"encoding/csv"
-	"errors"
-	"fmt"
 
 	"github.com/go-resty/resty/v2"
+	"github.com/tidwall/gjson"
 )
 
 type MarketCode string
@@ -30,49 +26,76 @@ const (
 	// 'nas','nys','ams','shs','shi','szs','szi','tse','hks','hnx','hsx'
 )
 
-// Search Market Codes Instance
 type Code struct {
+	Code     string
+	Name     string
+	Industry string
+}
+
+// Search Market Codes Instance
+type CodeManager struct {
 	cli *resty.Client
 }
 
-func NewCode(cli *resty.Client) *Code {
-	cli.SetBaseURL("https://new.real.download.dws.co.kr")
-	return &Code{cli: cli}
+func NewCodeManager(cli *resty.Client) *CodeManager {
+	cli.SetBaseURL("http://data.krx.co.kr")
+	return &CodeManager{cli: cli}
 }
 
-func (c *Code) Kosdaq(ctx context.Context) error {
-	res, err := c.cli.R().
+func (c *CodeManager) Kosdaq(ctx context.Context) ([]Code, error) {
+	res, err := c.cli.
+		R().
 		SetContext(ctx).
-		Get("/common/master/kosdaq_code.mst.zip")
+		SetFormData(map[string]string{
+			"bld":         "dbms/MDC/STAT/standard/MDCSTAT03901",
+			"locale":      "ko_KR",
+			"mktId":       "KSQ",
+			"trdDd":       "20230416",
+			"money":       "1",
+			"csvxls_isNo": "false",
+		}).
+		Post("/comm/bldAttendant/getJsonData.cmd")
 	if err != nil {
-		return err
+		return nil, err
 	}
-	rd, err := zip.NewReader(bytes.NewReader(res.Body()), res.Size())
-	if err != nil {
-		return err
-	}
-	if len(rd.File) == 0 {
-		return errors.New("empty kosdaq zip data")
+	var codes []Code
+	re := gjson.ParseBytes(res.Body())
+	for _, i := range re.Get("block1").Array() {
+		codes = append(codes, Code{
+			Code:     i.Get("ISU_SRT_CD").String(),
+			Name:     i.Get("ISU_ABBRV").String(),
+			Industry: i.Get("IDX_IND_NM").String(),
+		})
 	}
 
-	f, err := rd.File[0].Open()
-	if err != nil {
-		return err
-	}
-
-	csvdata := csv.NewReader(f)
-	rc, err := csvdata.ReadAll()
-	if err != nil {
-		return err
-	}
-
-	for _, i := range rc {
-		fmt.Print(i[0])
-	}
-	return nil
-
+	return codes, nil
 }
 
-func (c *Code) Kospi(ctx context.Context) error {
-	return nil
+func (c *CodeManager) Kospi(ctx context.Context) ([]Code, error) {
+	res, err := c.cli.
+		R().
+		SetContext(ctx).
+		SetFormData(map[string]string{
+			"bld":         "dbms/MDC/STAT/standard/MDCSTAT03901",
+			"locale":      "ko_KR",
+			"mktId":       "STK",
+			"trdDd":       "20230416",
+			"money":       "1",
+			"csvxls_isNo": "false",
+		}).
+		Post("/comm/bldAttendant/getJsonData.cmd")
+	if err != nil {
+		return nil, err
+	}
+	var codes []Code
+	re := gjson.ParseBytes(res.Body())
+	for _, i := range re.Get("block1").Array() {
+		codes = append(codes, Code{
+			Code:     i.Get("ISU_SRT_CD").String(),
+			Name:     i.Get("ISU_ABBRV").String(),
+			Industry: i.Get("IDX_IND_NM").String(),
+		})
+	}
+
+	return codes, nil
 }
