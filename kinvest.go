@@ -25,6 +25,7 @@ type Kinvest struct {
 func NewKinvest(config *Config) *Kinvest {
 	rest := resty.New()
 	rest.SetBaseURL("https://openapi.koreainvestment.com:9443")
+	manager := resty.New().SetBaseURL("http://data.krx.co.kr")
 	return &Kinvest{
 		config: config,
 		rest:   rest,
@@ -39,6 +40,6 @@ func NewKinvest(config *Config) *Kinvest {
 			rest:   rest,
 			config: config,
 		},
-		CodeManager: NewCodeManager(rest),
+		CodeManager: NewCodeManager(manager),
 	}
 }
