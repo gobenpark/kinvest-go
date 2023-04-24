@@ -8,8 +8,6 @@ type (
 	OrderType  string
 )
 
-const ()
-
 const (
 	Imitation Target = iota + 1
 	Real
