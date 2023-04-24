@@ -1,4 +1,4 @@
-package main
+package kv
 
 type (
 	MarketType string

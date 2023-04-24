@@ -1,4 +1,4 @@
-package main
+package kv
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func Test_RealTimeContract(t *testing.T) {
@@ -51,10 +52,13 @@ func Test_CurrentConclusion(t *testing.T) {
 }
 
 func Test_DailyPrice(t *testing.T) {
+
 	cli := MockClient(t)
-	m, err := cli.DailyPrice(context.TODO(), Stock, Day, "005930", true)
+	m, err := cli.DailyPrice(context.TODO(), Stock, Month, "005930", true)
 	assert.NoError(t, err)
-	fmt.Println(m)
+	for _, i := range m.Output {
+		fmt.Printf("o: %s h: %s l: %s c: %s time: %s\n", i.StckOprc, i.StckHgpr, i.StckLwpr, i.StckClpr, i.StckBsopDate)
+	}
 }
 
 func Test_ExpectAskPrice(t *testing.T) {
@@ -86,10 +90,17 @@ func Test_CurrentELW(t *testing.T) {
 }
 
 func Test_DailyChartPrice(t *testing.T) {
+	year := time.Now().Year() - 1
+	now := time.Now()
+	lo, err := time.LoadLocation("Asia/Seoul")
+	require.NoError(t, err)
+	start := time.Date(year, now.Month(), now.Day(), now.Hour(), now.Minute(), now.Second(), 0, lo)
 	cli := MockClient(t)
-	m, err := cli.DailyChartPrice(context.TODO(), time.Now().Add(-96*time.Hour), time.Now(), Stock, Day, "005930", true)
+	m, err := cli.DailyChartPrice(context.TODO(), start, time.Now(), Stock, Day, "005930", true)
 	assert.NoError(t, err)
-	fmt.Println(m)
+	for _, i := range m.Output2 {
+		fmt.Println(i)
+	}
 }
 
 func Test_CurrentTimePerConclusion(t *testing.T) {

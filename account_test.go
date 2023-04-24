@@ -1,4 +1,4 @@
-package main
+package kv
 
 import (
 	"context"
@@ -34,7 +34,7 @@ func TestAccount_Approval(t *testing.T) {
 	t.Log(key)
 }
 
-func TestAccount_Approval_AccessToken(t *testing.T) {
+func TestAccount_AccessToken(t *testing.T) {
 	cli := MockClient(t)
 	token, err := cli.AccessToken(context.TODO())
 	assert.NoError(t, err)
@@ -42,7 +42,7 @@ func TestAccount_Approval_AccessToken(t *testing.T) {
 	t.Log(token)
 }
 
-func TestAccount_Approval_RevokeToken(t *testing.T) {
+func TestAccount_RevokeToken(t *testing.T) {
 	cli := MockClient(t)
 	err := cli.RevokeToken(context.TODO())
 	assert.NoError(t, err)

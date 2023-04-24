@@ -1,4 +1,4 @@
-package main
+package kv
 
 import (
 	"github.com/go-resty/resty/v2"
