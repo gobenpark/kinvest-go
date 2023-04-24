@@ -13,7 +13,7 @@ import (
 
 func Test_RealTimeContract(t *testing.T) {
 	cli := MockClient(t)
-	c, err := cli.RealtimeContract(context.TODO())
+	c, err := cli.RealtimeContract(context.TODO(), "005930")
 	assert.NoError(t, err)
 	for i := range c {
 		fmt.Println(i.DataCounts)

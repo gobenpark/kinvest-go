@@ -18,7 +18,7 @@ type Domestic struct {
 	rest   *resty.Client
 }
 
-func (k *Domestic) RealtimeContract(ctx context.Context) (<-chan RealtimeResponse, error) {
+func (k *Domestic) RealtimeContract(ctx context.Context, code string) (<-chan RealtimeResponse, error) {
 	res := make(chan RealtimeResponse, 1)
 	b := RequestBody{
 		Header: struct {
@@ -43,7 +43,7 @@ func (k *Domestic) RealtimeContract(ctx context.Context) (<-chan RealtimeRespons
 				TrKey string `json:"tr_key"`
 			}{
 				TrId:  "H0STCNT0",
-				TrKey: "005930",
+				TrKey: code,
 			},
 		},
 	}
