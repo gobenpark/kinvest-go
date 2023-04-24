@@ -18,7 +18,7 @@ type Domestic struct {
 	rest   *resty.Client
 }
 
-func (k *Domestic) RealtimeContract(ctx context.Context, code string) (<-chan RealtimeResponse, error) {
+func (k *Domestic) RealtimeContract(ctx context.Context, approvalKey, code string) (<-chan RealtimeResponse, error) {
 	res := make(chan RealtimeResponse, 1)
 	b := RequestBody{
 		Header: struct {
@@ -27,7 +27,7 @@ func (k *Domestic) RealtimeContract(ctx context.Context, code string) (<-chan Re
 			TrType      string `json:"tr_type"`
 			ContentType string `json:"content-type"`
 		}{
-			ApprovalKey: "3daa450a-0685-4c31-b015-99c5e5f4b11d",
+			ApprovalKey: approvalKey,
 			Custtype:    string(k.config.Customer),
 			TrType:      "1",
 			ContentType: "utf-8",
