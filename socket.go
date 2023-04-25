@@ -337,7 +337,7 @@ func (r *RealtimeData) GetLowCompare() int {
 }
 
 func (r *RealtimeData) GetBusinessDate() time.Time {
-	t, _ := time.Parse("150405", r.HighTime)
+	t, _ := time.Parse("20060102", r.BusinessDate)
 	return t
 }
 
