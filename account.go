@@ -84,6 +84,7 @@ func (a *Account) PossibleOrder(ctx context.Context, code, product, perprice str
 		"tr_id":         YesOrNo("VTTC8908R", "TTTC8908R", a.config.Imitation),
 		// 공백: 초기조회,N 다음데이터 조회 Res Header가 M일경우
 		"tr_cont":  "",
+		"appkey":   a.config.AppKey,
 		"custtype": string(a.config.Customer),
 	}).
 		SetQueryParams(map[string]string{
@@ -104,11 +105,15 @@ func (a *Account) PossibleOrder(ctx context.Context, code, product, perprice str
 }
 
 func (a *Account) AccountBalance(ctx context.Context) error {
-	res, err := a.rest.SetDebug(true).R().SetContext(ctx).SetHeaders(map[string]string{
+	if len(a.config.Account) != 10 {
+		return errors.New("invalud account number")
+	}
+	res, err := a.rest.R().SetContext(ctx).SetHeaders(map[string]string{
 		"content-type":  "application/json; charset=utf-8",
 		"authorization": "Bearer " + a.config.Token,
 		"appsecret":     a.config.SecretKey,
 		"tr_id":         YesOrNo("VTTC8434R", "TTTC8434R", a.config.Imitation),
+		"appkey":        a.config.AppKey,
 		// 공백: 초기조회,N 다음데이터 조회 Res Header가 M일경우
 		"tr_cont":  "",
 		"custtype": string(a.config.Customer),
