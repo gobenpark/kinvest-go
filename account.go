@@ -108,7 +108,7 @@ func (a *Account) AccountBalance(ctx context.Context) error {
 	if len(a.config.Account) != 10 {
 		return errors.New("invalud account number")
 	}
-	res, err := a.rest.SetDebug(true).R().SetContext(ctx).SetHeaders(map[string]string{
+	res, err := a.rest.R().SetContext(ctx).SetHeaders(map[string]string{
 		"content-type":  "application/json; charset=utf-8",
 		"authorization": "Bearer " + a.config.Token,
 		"appsecret":     a.config.SecretKey,
