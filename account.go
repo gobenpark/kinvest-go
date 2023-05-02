@@ -108,7 +108,7 @@ func (a *Account) AccountBalance(ctx context.Context) error {
 	if len(a.config.Account) != 10 {
 		return errors.New("invalud account number")
 	}
-	res, err := a.rest.R().SetContext(ctx).SetHeaders(map[string]string{
+	res, err := a.rest.SetDebug(true).R().SetContext(ctx).SetHeaders(map[string]string{
 		"content-type":  "application/json; charset=utf-8",
 		"authorization": "Bearer " + a.config.Token,
 		"appsecret":     a.config.SecretKey,
@@ -126,7 +126,7 @@ func (a *Account) AccountBalance(ctx context.Context) error {
 		SetQueryParam("UNPR_DVSN", "01").
 		SetQueryParam("FUND_STTL_ICLD_YN", "N").
 		SetQueryParam("FNCG_AMT_AUTO_RDPT_YN", "N").
-		SetQueryParam("FNCG_AMT_AUTO_RDPT_YN", "00").
+		SetQueryParam("PRCS_DVSN", "00").
 		SetQueryParam("CTX_AREA_FK100", "").
 		SetQueryParam("CTX_AREA_NK100", "").
 		Get("/uapi/domestic-stock/v1/trading/inquire-balance")
