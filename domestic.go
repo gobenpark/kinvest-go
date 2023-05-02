@@ -350,7 +350,6 @@ func (k *Domestic) DailyChartPrice(ctx context.Context, start time.Time, end tim
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(res.String())
 	var d DailyChartPrice
 	if err := json.Unmarshal(res.Body(), &d); err != nil {
 		return nil, err

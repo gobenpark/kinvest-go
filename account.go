@@ -137,7 +137,6 @@ func (a *Account) AccountBalance(ctx context.Context) (Balance, error) {
 	var d Balance
 	if err := json.Unmarshal(res.Body(), &d); err != nil {
 		return Balance{}, err
-
 	}
 	return d, nil
 }

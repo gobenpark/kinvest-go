@@ -372,51 +372,93 @@ type ELW struct {
 }
 
 type DailyChartPrice struct {
+	//응답상세
 	Output1 struct {
-		PrdyVrss                 string `json:"prdy_vrss"`
-		PrdyVrssSign             string `json:"prdy_vrss_sign"`
-		PrdyCtrt                 string `json:"prdy_ctrt"`
-		StckPrdyClpr             string `json:"stck_prdy_clpr"`
-		AcmlVol                  string `json:"acml_vol"`
-		AcmlTrPbmn               string `json:"acml_tr_pbmn"`
-		HtsKorIsnm               string `json:"hts_kor_isnm"`
-		StckPrpr                 string `json:"stck_prpr"`
-		StckShrnIscd             string `json:"stck_shrn_iscd"`
-		PrdyVol                  string `json:"prdy_vol"`
-		StckMxpr                 string `json:"stck_mxpr"`
-		StckLlam                 string `json:"stck_llam"`
-		StckOprc                 string `json:"stck_oprc"`
-		StckHgpr                 string `json:"stck_hgpr"`
-		StckLwpr                 string `json:"stck_lwpr"`
-		StckPrdyOprc             string `json:"stck_prdy_oprc"`
-		StckPrdyHgpr             string `json:"stck_prdy_hgpr"`
-		StckPrdyLwpr             string `json:"stck_prdy_lwpr"`
-		Askp                     string `json:"askp"`
-		Bidp                     string `json:"bidp"`
-		PrdyVrssVol              string `json:"prdy_vrss_vol"`
-		VolTnrt                  string `json:"vol_tnrt"`
-		StckFcam                 string `json:"stck_fcam"`
-		LstnStcn                 string `json:"lstn_stcn"`
-		Cpfn                     string `json:"cpfn"`
-		HtsAvls                  string `json:"hts_avls"`
-		Per                      string `json:"per"`
-		Eps                      string `json:"eps"`
-		Pbr                      string `json:"pbr"`
+		//전일 대비
+		PrdyVrss string `json:"prdy_vrss"`
+		//전일 대비 부호
+		PrdyVrssSign string `json:"prdy_vrss_sign"`
+		//전일 대비율
+		PrdyCtrt string `json:"prdy_ctrt"`
+		//주식 전일 종가
+		StckPrdyClpr string `json:"stck_prdy_clpr"`
+		//누적 거래량
+		AcmlVol string `json:"acml_vol"`
+		//누적 거래 대금
+		AcmlTrPbmn string `json:"acml_tr_pbmn"`
+		//HTS 한글 종목명
+		HtsKorIsnm string `json:"hts_kor_isnm"`
+		//주식 현재가
+		StckPrpr string `json:"stck_prpr"`
+		//주식 단축 종목코드
+		StckShrnIscd string `json:"stck_shrn_iscd"`
+		//전일 거래량
+		PrdyVol string `json:"prdy_vol"`
+		//상한가
+		StckMxpr string `json:"stck_mxpr"`
+		//하한가
+		StckLlam string `json:"stck_llam"`
+		//시가
+		StckOprc string `json:"stck_oprc"`
+		//최고가
+		StckHgpr string `json:"stck_hgpr"`
+		//최저가
+		StckLwpr string `json:"stck_lwpr"`
+		//주식 전일 시가
+		StckPrdyOprc string `json:"stck_prdy_oprc"`
+		//주식 전일 최고가
+		StckPrdyHgpr string `json:"stck_prdy_hgpr"`
+		//주식 전일 최저가
+		StckPrdyLwpr string `json:"stck_prdy_lwpr"`
+		//매도호가
+		Askp string `json:"askp"`
+		//매수호가
+		Bidp string `json:"bidp"`
+		//전일 대비 거래량
+		PrdyVrssVol string `json:"prdy_vrss_vol"`
+		//거래량 회전율
+		VolTnrt string `json:"vol_tnrt"`
+		//주식 액면가
+		StckFcam string `json:"stck_fcam"`
+		//상장 주수
+		LstnStcn string `json:"lstn_stcn"`
+		//자본금
+		Cpfn string `json:"cpfn"`
+		//시가총액
+		HtsAvls string `json:"hts_avls"`
+		Per     string `json:"per"`
+		Eps     string `json:"eps"`
+		Pbr     string `json:"pbr"`
+		//전체 융자 잔고 비율
 		ItewholLoanRmndRatemName string `json:"itewhol_loan_rmnd_ratem name"`
 	} `json:"output1"`
+	//일별데이터
 	Output2 []struct {
+		//주식 영업 일자
 		StckBsopDate string `json:"stck_bsop_date"`
-		StckClpr     string `json:"stck_clpr"`
-		StckOprc     string `json:"stck_oprc"`
-		StckHgpr     string `json:"stck_hgpr"`
-		StckLwpr     string `json:"stck_lwpr"`
-		AcmlVol      string `json:"acml_vol"`
-		AcmlTrPbmn   string `json:"acml_tr_pbmn"`
-		FlngClsCode  string `json:"flng_cls_code"`
-		PrttRate     string `json:"prtt_rate"`
-		ModYn        string `json:"mod_yn"`
+		//주식 종가
+		StckClpr string `json:"stck_clpr"`
+		//주식 시가
+		StckOprc string `json:"stck_oprc"`
+		//주식 최고가
+		StckHgpr string `json:"stck_hgpr"`
+		//주식 최저가
+		StckLwpr string `json:"stck_lwpr"`
+		//누적 거래량
+		AcmlVol string `json:"acml_vol"`
+		//누적 거래 대금
+		AcmlTrPbmn string `json:"acml_tr_pbmn"`
+		//락 구분 코드
+		FlngClsCode string `json:"flng_cls_code"`
+		//분할 비율
+		PrttRate string `json:"prtt_rate"`
+		//분할변경여부
+		ModYn string `json:"mod_yn"`
+		//전일 대비 부호
 		PrdyVrssSign string `json:"prdy_vrss_sign"`
-		PrdyVrss     string `json:"prdy_vrss"`
+		//전일 대비
+		PrdyVrss string `json:"prdy_vrss"`
+		//재평가사유코드
 		RevlIssuReas string `json:"revl_issu_reas"`
 	} `json:"output2"`
 	RtCd  string `json:"rt_cd"`
