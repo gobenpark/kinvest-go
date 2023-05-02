@@ -49,7 +49,8 @@ func (k *Domestic) RealtimeContract(ctx context.Context, approvalKey, code strin
 	}
 
 	go func() {
-		Retry(5, func() error {
+		Retry(ctx, 5, func() error {
+			defer close(res)
 			c, _, err := websocket.DefaultDialer.DialContext(ctx, "ws://ops.koreainvestment.com:21000/tryitout/H0STCNT0", nil)
 			if err != nil {
 				return err
