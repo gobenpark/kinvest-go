@@ -2,6 +2,7 @@ package kv
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 
@@ -104,11 +105,11 @@ func (a *Account) PossibleOrder(ctx context.Context, code, product, perprice str
 	return nil
 }
 
-func (a *Account) AccountBalance(ctx context.Context) error {
+func (a *Account) AccountBalance(ctx context.Context) (Balance, error) {
 	if len(a.config.Account) != 10 {
-		return errors.New("invalud account number")
+		return Balance{}, errors.New("invalud account number")
 	}
-	res, err := a.rest.R().SetContext(ctx).SetHeaders(map[string]string{
+	res, err := a.rest.SetDebug(true).R().SetContext(ctx).SetHeaders(map[string]string{
 		"content-type":  "application/json; charset=utf-8",
 		"authorization": "Bearer " + a.config.Token,
 		"appsecret":     a.config.SecretKey,
@@ -131,8 +132,12 @@ func (a *Account) AccountBalance(ctx context.Context) error {
 		SetQueryParam("CTX_AREA_NK100", "").
 		Get("/uapi/domestic-stock/v1/trading/inquire-balance")
 	if err != nil {
-		return err
+		return Balance{}, err
 	}
-	fmt.Println(res.String())
-	return nil
+	var d Balance
+	if err := json.Unmarshal(res.Body(), &d); err != nil {
+		return Balance{}, err
+
+	}
+	return d, nil
 }
