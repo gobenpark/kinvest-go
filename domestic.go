@@ -50,7 +50,6 @@ func (k *Domestic) RealtimeContract(ctx context.Context, approvalKey, code strin
 
 	go func() {
 		Retry(ctx, 5, func() error {
-			defer close(res)
 			c, _, err := websocket.DefaultDialer.DialContext(ctx, "ws://ops.koreainvestment.com:21000/tryitout/H0STCNT0", nil)
 			if err != nil {
 				return err
@@ -60,7 +59,11 @@ func (k *Domestic) RealtimeContract(ctx context.Context, approvalKey, code strin
 			}
 
 			for {
-
+				select {
+				case <-ctx.Done():
+					close(res)
+					break
+				}
 				//0|H0STCNT0|001|005930^112616^62700^2^400^0.64^62700.41^62700^63000^62300^62700^62600^125^9694968^607878273600^25807^15918^-9889^93.01^4614191^4291558^1^0.45^63.03^090013^3^0^090646^5^-300^100741^2^400^20230324^20^N^71292^244009^2795345^2044512^0.16^5367918^180.61^0^^62700
 				mtype, msg, err := c.ReadMessage()
 				if err != nil {
