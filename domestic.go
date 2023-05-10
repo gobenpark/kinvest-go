@@ -63,97 +63,99 @@ func (k *Domestic) RealtimeContract(ctx context.Context, approvalKey, code strin
 				case <-ctx.Done():
 					close(res)
 					break
-				}
-				//0|H0STCNT0|001|005930^112616^62700^2^400^0.64^62700.41^62700^63000^62300^62700^62600^125^9694968^607878273600^25807^15918^-9889^93.01^4614191^4291558^1^0.45^63.03^090013^3^0^090646^5^-300^100741^2^400^20230324^20^N^71292^244009^2795345^2044512^0.16^5367918^180.61^0^^62700
-				mtype, msg, err := c.ReadMessage()
-				if err != nil {
-					return err
-				}
+				default:
 
-				switch mtype {
-				case websocket.TextMessage:
-					if msg[0] == '{' {
-						var s AccessResponse
-						if err := json.Unmarshal(msg, &s); err != nil {
-							// is not socket access
-						}
-						fmt.Println(s)
-						continue
-					}
-
-					ms := strings.Split(string(msg), "|")
-					if ms[0] != "0" && ms[0] != "1" {
-						fmt.Println(err)
-						return errors.New("could not find encrypt value")
-					}
-
-					counts, err := strconv.ParseInt(ms[2], 10, 32)
+					//0|H0STCNT0|001|005930^112616^62700^2^400^0.64^62700.41^62700^63000^62300^62700^62600^125^9694968^607878273600^25807^15918^-9889^93.01^4614191^4291558^1^0.45^63.03^090013^3^0^090646^5^-300^100741^2^400^20230324^20^N^71292^244009^2795345^2044512^0.16^5367918^180.61^0^^62700
+					mtype, msg, err := c.ReadMessage()
 					if err != nil {
-						return errors.New("fail to parse datacounts")
+						return err
 					}
 
-					tbody := strings.Split(ms[3], "^")
-					body := RealtimeResponse{}
-					body.Encrypted = ms[0] == "1"
-					body.TRID = ms[1]
-					body.DataCounts = ms[2]
+					switch mtype {
+					case websocket.TextMessage:
+						if msg[0] == '{' {
+							var s AccessResponse
+							if err := json.Unmarshal(msg, &s); err != nil {
+								// is not socket access
+							}
+							fmt.Println(s)
+							continue
+						}
 
-					idx := 0
-					b := []RealtimeData{}
-					for i := 0; i < int(counts); i++ {
-						b = append(b, RealtimeData{
-							Code:                       tbody[idx+0],
-							ContractHour:               tbody[idx+1],
-							Price:                      tbody[idx+2],
-							CompareSign:                tbody[idx+3],
-							CompareDay:                 tbody[idx+4],
-							CompareRate:                tbody[idx+5],
-							WeightAveragePrice:         tbody[idx+6],
-							Open:                       tbody[idx+7],
-							High:                       tbody[idx+8],
-							Low:                        tbody[idx+9],
-							AskPrice:                   tbody[idx+10],
-							BidPrice:                   tbody[idx+11],
-							ContractVolume:             tbody[idx+12],
-							AccumulateVolume:           tbody[idx+13],
-							AccumulateTransactionMoney: tbody[idx+14],
-							AskCount:                   tbody[idx+15],
-							BidCount:                   tbody[idx+16],
-							PureBidCount:               tbody[idx+17],
-							VolumePower:                tbody[idx+18],
-							TotalAskCounts:             tbody[idx+19],
-							TotalBidCounts:             tbody[idx+20],
-							ContractDivide:             tbody[idx+21],
-							BidRate:                    tbody[idx+22],
-							PredayVolumeCompareRate:    tbody[idx+23],
-							OpenningTime:               tbody[idx+24],
-							OpenCompareSign:            tbody[idx+25],
-							OpenCompare:                tbody[idx+26],
-							HighTime:                   tbody[idx+27],
-							HighCompareSign:            tbody[idx+28],
-							HighCompare:                tbody[idx+29],
-							LowTime:                    tbody[idx+30],
-							LowCompareSign:             tbody[idx+31],
-							LowCompare:                 tbody[idx+32],
-							BusinessDate:               tbody[idx+33],
-							NewMarketOpCode:            tbody[idx+34],
-							TransactionSuspension:      tbody[idx+35],
-							RemainAsk:                  tbody[idx+36],
-							RemainBid:                  tbody[idx+37],
-							TotalRemainAsk:             tbody[idx+38],
-							TotalRemainBid:             tbody[idx+39],
-							VolumeRotateRate:           tbody[idx+40],
-							PreDayTotalVolume:          tbody[idx+41],
-							PreDayTotalVolumeRate:      tbody[idx+42],
-							HourClockCode:              tbody[idx+43],
-							MarketTermCode:             tbody[idx+44],
-							VIStandardPrice:            tbody[idx+45],
-						})
-						idx += 46
+						ms := strings.Split(string(msg), "|")
+						if ms[0] != "0" && ms[0] != "1" {
+							fmt.Println(err)
+							return errors.New("could not find encrypt value")
+						}
+
+						counts, err := strconv.ParseInt(ms[2], 10, 32)
+						if err != nil {
+							return errors.New("fail to parse datacounts")
+						}
+
+						tbody := strings.Split(ms[3], "^")
+						body := RealtimeResponse{}
+						body.Encrypted = ms[0] == "1"
+						body.TRID = ms[1]
+						body.DataCounts = ms[2]
+
+						idx := 0
+						b := []RealtimeData{}
+						for i := 0; i < int(counts); i++ {
+							b = append(b, RealtimeData{
+								Code:                       tbody[idx+0],
+								ContractHour:               tbody[idx+1],
+								Price:                      tbody[idx+2],
+								CompareSign:                tbody[idx+3],
+								CompareDay:                 tbody[idx+4],
+								CompareRate:                tbody[idx+5],
+								WeightAveragePrice:         tbody[idx+6],
+								Open:                       tbody[idx+7],
+								High:                       tbody[idx+8],
+								Low:                        tbody[idx+9],
+								AskPrice:                   tbody[idx+10],
+								BidPrice:                   tbody[idx+11],
+								ContractVolume:             tbody[idx+12],
+								AccumulateVolume:           tbody[idx+13],
+								AccumulateTransactionMoney: tbody[idx+14],
+								AskCount:                   tbody[idx+15],
+								BidCount:                   tbody[idx+16],
+								PureBidCount:               tbody[idx+17],
+								VolumePower:                tbody[idx+18],
+								TotalAskCounts:             tbody[idx+19],
+								TotalBidCounts:             tbody[idx+20],
+								ContractDivide:             tbody[idx+21],
+								BidRate:                    tbody[idx+22],
+								PredayVolumeCompareRate:    tbody[idx+23],
+								OpenningTime:               tbody[idx+24],
+								OpenCompareSign:            tbody[idx+25],
+								OpenCompare:                tbody[idx+26],
+								HighTime:                   tbody[idx+27],
+								HighCompareSign:            tbody[idx+28],
+								HighCompare:                tbody[idx+29],
+								LowTime:                    tbody[idx+30],
+								LowCompareSign:             tbody[idx+31],
+								LowCompare:                 tbody[idx+32],
+								BusinessDate:               tbody[idx+33],
+								NewMarketOpCode:            tbody[idx+34],
+								TransactionSuspension:      tbody[idx+35],
+								RemainAsk:                  tbody[idx+36],
+								RemainBid:                  tbody[idx+37],
+								TotalRemainAsk:             tbody[idx+38],
+								TotalRemainBid:             tbody[idx+39],
+								VolumeRotateRate:           tbody[idx+40],
+								PreDayTotalVolume:          tbody[idx+41],
+								PreDayTotalVolumeRate:      tbody[idx+42],
+								HourClockCode:              tbody[idx+43],
+								MarketTermCode:             tbody[idx+44],
+								VIStandardPrice:            tbody[idx+45],
+							})
+							idx += 46
+						}
+
+						body.Datas = b
+						res <- body
 					}
-
-					body.Datas = b
-					res <- body
 				}
 			}
 		})
